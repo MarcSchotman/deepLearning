@@ -1,9 +1,13 @@
 import ftplib
+import re # for stripping name (#curcentStationName = curcentStationName.strip('-2017.gz'))
 
-yearFolder = [2017, 2016]
+
+years = [2017]
+
+# init
 station = {}
-station.fromkeys(yearFolder)
-
+station = station.fromkeys(years)
+stationNames = {}
 
 #Open ftp connection
 # host name
@@ -13,22 +17,30 @@ ftp.login()
 # set path
 ftp.cwd('pub/data/noaa/isd-lite/')
 
-stationNames = {}
 
-for i in yearFolder:
-    print(i)
-    ftp.cwd(str(i))
+
+for year in years:
+    station[year] = []
+    
+    print(year)
+    ftp.cwd(str(year))
     
     
     #List the files in the current directory
     stationFolder = []
     ftp.dir(stationFolder.append)         # list directory contents  
     
+    
     for ii in stationFolder:
-        staion = ii.split(' ')[-1]
+        
+        
+        curcentStationName = ii.split(' ')[-1]
+        
+        curcentStationName = re.sub('-2017.gz', '', curcentStationName)
+        station[year].append(curcentStationName)
 
 
-print(stationFolder[1])
+print(station[year][1])
 
    
 
