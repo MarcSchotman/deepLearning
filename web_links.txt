@@ -1,0 +1,10 @@
+LINK TO FTP DATABASE: 				ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/
+LINK TO VISUALIZATION OF WEATHER STATTIONS: 	https://gis.ncdc.noaa.gov/maps/ncei/cdo/hourly
+POSSIBLE CONTACT FOR TECHNICAL ISSUES: 		ncdc.orders@noaa.gov
+
+LINK OF ID TO COUNTRY ID:			ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.txt
+LINK OF COUNTRY TO COUNTRY ID:			ftp://ftp.ncdc.noaa.gov/pub/data/noaa/country-list.txt
+
+EXAMPLE CODE
+Guy who made some code extracting yearly data from the noaa database: https://stackoverflow.com/questions/37493028/python-3-urllib-530-too-many-connections-in-loop
+Uses the following git repository, which was also made specifically for this database(!): https://github.com/haydenth/ish_parser
