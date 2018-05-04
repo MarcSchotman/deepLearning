@@ -69,6 +69,14 @@ def convert_number(s):
         count = count + 1
     return line
 
+def check_date(minStartDate, minEndDate, stations):
+    beginDates = np.array(stations['BEGIN'])
+    endDates = np.array(stations['END'])
+    
+    indexes = np.where((beginDates < minStartDate) & (endDates > minEndDate))
+    
+    return indexes
+    
 
 ## start of script
 isd_history_file = open('isd-history.txt', "r")
@@ -78,8 +86,14 @@ isd_history = isd_history1.split("\n") #
 # clear text lines
 del(isd_history[0:22])
 
-data = []
-i=0
+#initilize dictionary
+stations ={}
+key = ['USAF', 'WBAN', 'LAT', 'LON', 'ELEV', 'BEGIN', 'END']
+stations = stations.fromkeys(keys)
+#intilize dictionary as lists
+for i in range(0,7):
+            stations[key[i]] = []
+            
 for line in isd_history:
     lineNumeric = []
     #lineSplit = line.split()
@@ -90,14 +104,21 @@ for line in isd_history:
             lineNumeric.append(item)
     
     if check_numbers(lineNumeric):  
-        data.append(convert_number(lineNumeric))
-
+        lineNumeric = convert_number(lineNumeric)
+        
+        for i in range(0,7):
+            stations[key[i]].append(lineNumeric[i])
 
 lat = 52.0116
 lon = 4.3571
-yearMin = 2015
-yearMax = 2018
-  
+
+minStartDate = int(20150000) #YearMonthDay
+minEndDate = int(20180000)  #YearMonthDay
+
+#        [ 0    1    2   3   4       5        6    ]  
+#stations = [USAF WBAN LAT LON ELEV BEGIN_DATE END_DATE]
+indexes = check_date(minStartDate,minEndDate,stations)
+
 
 
     
