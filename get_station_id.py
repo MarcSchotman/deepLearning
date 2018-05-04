@@ -6,6 +6,7 @@ Created on Fri May  4 11:25:22 2018
 """
 
 import numpy as np
+import math
 
 def string_is_number(s):
     if s[0] in ('-', '+'):
@@ -39,7 +40,10 @@ def check_numbers(s):
         #check if fourth number starts with '+' or '-' 
         elif s[3][0] !='+' and s[3][0] !='-':
             del(s[3])
-        #if long enough and lattitudes present data is OK
+        #remove if eleveation not present
+        elif s[4][0]!='+' and s[4][0] !='-':
+            del(s[4])
+        #if long enough and lattitudes + elevation is present data is OK
         else:
             succes =True
             checking = False
