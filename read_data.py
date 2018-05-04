@@ -12,7 +12,7 @@ station = station.fromkeys(years)
 stationNames = {}
 
 #Open ftp connection
-# host name
+#host name
 ftp = ftplib.FTP('ftp.ncdc.noaa.gov')
 ftp.login()
 
