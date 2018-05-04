@@ -69,12 +69,13 @@ def convert_number(s):
         count = count + 1
     return line
 
-#def check_date(minStartDate, minEndDate, stations):
-#    beginDates = np.array(stations['BEGIN'])
-#    endDates = np.array(stations['END'])
-#    
-#    indexes = np.where(beginDates < minStartDate and endDates > minEndDate)
-#    return indexes
+def check_date(minStartDate, minEndDate, stations):
+    beginDates = np.array(stations['BEGIN'])
+    endDates = np.array(stations['END'])
+    
+    indexes = np.where((beginDates < minStartDate) & (endDates > minEndDate))
+    
+    return indexes
     
 
 ## start of script
@@ -116,7 +117,7 @@ minEndDate = int(20180000)  #YearMonthDay
 
 #        [ 0    1    2   3   4       5        6    ]  
 #stations = [USAF WBAN LAT LON ELEV BEGIN_DATE END_DATE]
-#indexes = check_date(minStartDate,minEndDate,stations)
+indexes = check_date(minStartDate,minEndDate,stations)
 
 
 
