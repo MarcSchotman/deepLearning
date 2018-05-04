@@ -21,17 +21,41 @@ def is_number(s):
     except ValueError:
         return False
 
+
+def check_numbers(s):
+    #checking variables
+    checking = True
+    succes = False
+    
+    while checking:
+
+        #if length of numbers is too small (i.e. cannot contain 2 ID numbers + 
+        # 2 lattitude numbers + begin and end date)
+        if len(s) < 6:
+            checking = False 
+        #check if third number starts with '+' or '-'
+        elif s[2][0] != '+' and s[2][0] !='-':
+            del(s[2])
+        #check if fourth number starts with '+' or '-' 
+        elif s[3][0] !='+' and s[3][0] !='-':
+            del(s[3])
+        #if long enough and lattitudes present data is OK
+        else:
+            succes =True
+            checking = False
+    
+    return succes
+    
+    
 isd_history_file = open('isd-history.txt', "r")
-isd_history = isd_history_file.read()
-isd_history = isd_history.split("\n") #
+isd_history1 = isd_history_file.read()
+isd_history = isd_history1.split("\n") #
 
 # clear text lines
 del(isd_history[0:22])
 
-print(isd_history[0])
-
 data = []
-
+i=0
 for line in isd_history:
     lineNumber = []
     #lineSplit = line.split()
@@ -41,8 +65,8 @@ for line in isd_history:
         if string_is_number(item):
             lineNumber.append(item)
     
+    if check_numbers(lineNumber):
+        data.append(lineNumber)
+        
+  
 
-    data.append(lineNumber)
-        
-        
-        
