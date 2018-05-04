@@ -49,8 +49,28 @@ def check_numbers(s):
             checking = False
     
     return succes
-    
-    
+      
+def convert_number(s):
+    line = []
+    count = 0
+    for item in s:
+        
+        if count == 0 or count == 1:
+            newItem = item
+        elif count == 2 or count == 3 or count == 4:
+            if item[0] == '+':
+                number = item[1:-1]
+            number = item
+            newItem = float(number)
+        elif count == 5 or count == 6:
+            newItem = int(item)
+        
+        line.append(newItem)
+        count = count + 1
+    return line
+
+
+## start of script
 isd_history_file = open('isd-history.txt', "r")
 isd_history1 = isd_history_file.read()
 isd_history = isd_history1.split("\n") #
@@ -61,16 +81,23 @@ del(isd_history[0:22])
 data = []
 i=0
 for line in isd_history:
-    lineNumber = []
+    lineNumeric = []
     #lineSplit = line.split()
     lineSplit = line.split()
     
     for item in lineSplit:
         if string_is_number(item):
-            lineNumber.append(item)
+            lineNumeric.append(item)
     
-    if check_numbers(lineNumber):
-        data.append(lineNumber)
-        
+    if check_numbers(lineNumeric):  
+        data.append(convert_number(lineNumeric))
+
+
+lat = 52.0116
+lon = 4.3571
+yearMin = 2015
+yearMax = 2018
   
 
+
+    
