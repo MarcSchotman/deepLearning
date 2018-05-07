@@ -13,15 +13,12 @@ def string_is_number(s):
         return is_number(s[1:])
     return is_number(s)
 
-
-
 def is_number(s):
     try:
         float(s)
         return True
     except ValueError:
         return False
-
 
 def check_numbers(s):
     #checking variables
@@ -69,14 +66,42 @@ def convert_number(s):
         count = count + 1
     return line
 
-def check_date(minStartDate, minEndDate, stations):
+def check_date(stations,keys,minStartDate, minEndDate):
     beginDates = np.array(stations['BEGIN'])
     endDates = np.array(stations['END'])
     
     indexes = np.where((beginDates < minStartDate) & (endDates > minEndDate))
     
-    return indexes
+    #initilize stationsOut dict
+    stationsOut ={}
+    #takes only stations corresponding to indexes 
+    for key in keys:
+        stationsOut[key] = np.take(stations[key],indexes[0]) #INDEXES[0] NEEDED
+    #np.where makes makes indexes an array in an array for some dark reason...
+    return stationsOut
+
+def select_id_radius(stations, keys, long, lat, r):
     
+    rEarth = 6371
+    theta = (r/rEarth) * (180/ math.pi)
+    
+    #initilize output dict
+    stationsOut = {}
+    for key in keys:
+        stationsOut[key] = []
+    
+    #start filtering
+    for index in range(0,np.size(stations['LAT'])):
+        latCurrent = stations['LAT'][index]
+        lonCurrent = stations['LON'][index]
+        dist = math.sqrt((lat - latCurrent)**2 + (long - lonCurrent)**2)
+        
+        #if requirement is met this station is saved in stationsOut
+        if dist < theta:
+            for key in keys:
+                stationsOut[key].append(stations[key][index])
+            
+    return stationsOut
 
 ## start of script
 isd_history_file = open('isd-history.txt', "r")
@@ -88,11 +113,11 @@ del(isd_history[0:22])
 
 #initilize dictionary
 stations ={}
-key = ['USAF', 'WBAN', 'LAT', 'LON', 'ELEV', 'BEGIN', 'END']
+keys = ['USAF', 'WBAN', 'LAT', 'LON', 'ELEV', 'BEGIN', 'END']
 stations = stations.fromkeys(keys)
 #intilize dictionary as lists
-for i in range(0,7):
-            stations[key[i]] = []
+for key in keys:
+            stations[key] = []
             
 for line in isd_history:
     lineNumeric = []
@@ -106,18 +131,21 @@ for line in isd_history:
     if check_numbers(lineNumeric):  
         lineNumeric = convert_number(lineNumeric)
         
-        for i in range(0,7):
-            stations[key[i]].append(lineNumeric[i])
-
-lat = 52.0116
-lon = 4.3571
-
+        for i in range(0,len(keys)):
+            stations[keys[i]].append(lineNumeric[i])
+#longitude lattitude Delft, i.e. center of radius
+lattitude = 52.0116
+longitude = 4.3571
+r_max = 100
 minStartDate = int(20150000) #YearMonthDay
 minEndDate = int(20180000)  #YearMonthDay
 
 #        [ 0    1    2   3   4       5        6    ]  
 #stations = [USAF WBAN LAT LON ELEV BEGIN_DATE END_DATE]
-indexes = check_date(minStartDate,minEndDate,stations)
+stations = check_date(stations,keys,minStartDate,minEndDate)
+stations = select_id_radius(stations,keys,longitude,lattitude,r_max)
+
+
 
 
 
