@@ -20,12 +20,13 @@ parser = ish_parser.ish_parser()
 keys = ['air_temperature','humidity','elevation','dew-point']#,'wind_speed','wind_direction','wind_observation_direction_type'
 
 # identifies what data to get
+YEARS = range(2012, 2016)
 USAF_ID = ['010240','010250','010260']
 WBAN_ID = ['99999','99999','99999']
 #concatenates the two ID's with '-' in between
 STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(USAF_ID, WBAN_ID)]
 
-YEARS = range(2012, 2016)
+
 
 with ftplib.FTP(host=ftp_host) as ftpconn:
     ftpconn.login()
@@ -39,7 +40,7 @@ with ftplib.FTP(host=ftp_host) as ftpconn:
             #show file download and percentage of completention
             percentage_done = counting/(len(YEARS)*len(STATION_ID_LIST))*100
             counting+=1
-            print("Processing",ftp_file,"....",round(percentage_done,1),"% completed")
+            print("Downloading and processing",ftp_file,"....",round(percentage_done,1),"% completed")
     
             # read the whole file and save it to a BytesIO (stream)
             response = io.BytesIO()
@@ -90,4 +91,5 @@ with ftplib.FTP(host=ftp_host) as ftpconn:
         #uses pikcle for dumping dictionary
         with open(full_path_name + '.pickle', 'wb') as handle:
             pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print("Finished downloads and processing of all files.")
             
