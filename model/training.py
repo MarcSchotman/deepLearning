@@ -1,16 +1,16 @@
 from model.meijer import meijer_net
-from model.preprocessing import load_data
+from model.preprocessing import generate_batch
 
 model = meijer_net()
 batch_size = 8
 n_samples = 100
-train_generator = load_data(data_dir='../RADIUS100KM/',
-                            years=(2008, 2016),
-                            batch_size=batch_size)
+train_generator = generate_batch(data_dir='../RADIUS100KM/',
+                                 years=(2008, 2016),
+                                 batch_size=batch_size)
 
-valid_generator = load_data(data_dir='../RADIUS100KM/',
-                            years=(2017, 2018),
-                            batch_size=batch_size)
+valid_generator = generate_batch(data_dir='../RADIUS100KM/',
+                                 years=(2017, 2018),
+                                 batch_size=batch_size)
 
 model.compile(optimizer='Adam', loss='mean_squared_error')
 model.fit_generator(generator=train_generator,
