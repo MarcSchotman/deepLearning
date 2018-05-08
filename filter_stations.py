@@ -18,6 +18,9 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     import math
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
+    import ftplib
+    import re # for stripping name (#curcentStationName = curcentStationName.strip('-2017.gz'))
+     
     
     def string_is_number(s):
         if s[0] in ('-', '+'):
@@ -94,7 +97,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
             count = count + 1
         return line
     
-    def check_date(stations,keys,minStartDate, minEndDate):
+    def filter_station_date(stations,keys,minStartDate, minEndDate):
         beginDates = np.array(stations['BEGIN'])
         endDates = np.array(stations['END'])
         
@@ -108,7 +111,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         #np.where makes makes indexes an array in an array for some dark reason...
         return stationsOut
     
-    def select_id_radius(stations, keys, long, lat, r):
+    def filter_station_radius(stations, keys, long, lat, r):
         
         rEarth = 6371
         theta = (r/rEarth) * (180/ math.pi)
@@ -129,6 +132,114 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
                 for key in keys:
                     stationsOut[key].append(stations[key][index])
                 
+        return stationsOut
+    
+    def get_active_station_ids(years):
+   
+        # keys = ['USAF', 'WBAN'] # for station list
+        
+        # init
+        stations = {}
+        stations = stations.fromkeys(years)
+        # stationID = {}
+        
+        #Open ftp connection
+        #host name
+        ftp = ftplib.FTP('ftp.ncdc.noaa.gov')
+        ftp.login()
+        
+        # set path
+        ftp.cwd('pub/data/noaa/isd-lite/')
+        parent_dir = ftp.pwd()
+        
+        for year in years:
+            stations[year] = [] # init dict as list
+            
+            # reset dict
+        #    stationID = stationID.fromkeys(keys)
+        #    for key in keys:
+        #                stationID[key] = []
+                  
+            print('Extracting year IDs from ' + str(year) + '.')
+            ftp.cwd(str(year)) # go to year dict
+              
+            #List the files in the current directory
+            stationFolder = []
+            ftp.dir(stationFolder.append)         # list directory contents  
+            
+            for ii in stationFolder:
+                 
+                # split the current line at spaces, and get last entry (where station ID is located)
+                curcentStationID = ii.split(' ')[-1]
+                
+                # remove year.gz from stationYears ID, and store stationYears ID in dict
+                curcentStationID = re.sub('-' + str(year) +'.gz', '', curcentStationID)
+                
+                # split at -
+                curcentStationID = curcentStationID.split('-')
+
+                
+                # append
+                stations[year].append(curcentStationID)
+                
+                # add station ID to dict
+                # stationID[keys[0]].append(curcentStationID[0])
+                # stationID[keys[1]].append(curcentStationID[1])
+                
+            # add station to corresponding year
+            # stationYear[year] = stationID
+            # Go to parent dictionary
+            ftp.cwd('..')
+        ftp.quit()
+        return stations
+    
+    def filter_station_activity(stationsIn,keys,minStartDate,minEndDate):
+        
+        #initilize output dict
+        stationsOut = {}
+        for key in keys:
+            stationsOut[key] = []
+        
+        # get year list
+        yearStart = int(str(minStartDate)[:4])
+        yearEnd = int(str(minEndDate)[:4])
+        years = list(range(yearStart, yearEnd + 1))
+        print(yearStart)
+        stations = get_active_station_ids(years)
+        # Check which station was active in each year
+        activeEachYearInit = stations[yearStart]
+        
+
+        activeEachYear = activeEachYearInit
+        delCount = 0
+        delID = []
+        
+        # delete staions which are not active each year
+        for year in years:
+            print('Year: ' + str(year))
+            
+            # loop over active each year
+            for ID in activeEachYear:
+                # print(len(activeEachYear))
+                if not(ID in stations[year]):
+                    
+                    delID.append(ID)
+                    delCount = delCount + 1
+                    
+                    activeEachYear.remove(ID)
+        
+        print('Deleted number of stations:' + str(delCount))
+        # get Iindexes from stations we want to keep
+        indexes = []
+        for i in range(0, len(stationsIn[keys[0]])):
+            
+            currentStation = [stationsIn[keys[0]][i], stationsIn[keys[1]][i]]
+            if (currentStation in activeEachYear):
+                indexes.append(i)
+                
+        for key in keys:
+            stationsOut[key] = np.take(stationsIn[key],indexes) #INDEXES[0] NEEDED
+            
         return stationsOut
     
     ## start of script
@@ -165,12 +276,13 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     
     #        [ 0    1    2   3   4       5        6    ]  
     #stations = [USAF WBAN LAT LON ELEV BEGIN_DATE END_DATE]
-    stations = check_date(stations,keys,minStartDate,minEndDate)
-    stations = select_id_radius(stations,keys,longitudeCenter,lattitudeCenter,r_max)
-    
+    stations = filter_station_date(stations,keys,minStartDate,minEndDate)
+    stations = filter_station_radius(stations,keys,longitudeCenter,lattitudeCenter,r_max)
+    stations = filter_station_activity(stations,keys,minStartDate,minEndDate)
     return stations
+            
 
-
-
-
-    
+lattitudeCenter = 52.0116
+longitudeCenter = 4.3571                        
+stations = filter_stations(20150101, 20170101, 100, longitudeCenter, lattitudeCenter)
+# filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
