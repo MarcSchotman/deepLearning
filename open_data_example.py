@@ -6,9 +6,14 @@ Created on Mon May  7 14:50:52 2018
 """
 import pickle
 import os.path
-path_deep = os.getcwd()
-pathname= os.path.join(path_deep,'Data','2015.pickle')
 
-with open(pathname,'rb') as handle:
+mapname= os.path.join('D:','DATA','RADIUS100KM')
+
+with open(mapname+'\\2015.pickle','rb') as handle:
     data = pickle.load(handle)
-print(data['010240-99999']['air_temperature'])
+with open(mapname + '\\STATION_ID.pickle','rb') as handle:
+    station_id = pickle.load(handle)
+    
+STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(station_id[0], station_id[1])]
+    
+print(data[STATION_ID_LIST[1]]['air_temperature'])

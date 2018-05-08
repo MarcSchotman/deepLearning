@@ -40,13 +40,13 @@ for r in r_list:
     STATION_ID = [USAF_ID, WBAN_ID]
     
     mapName = 'RADIUS' + str(r) +'KM'
-    destinationPath = os.path.join('D:\\DUMMY\\',mapName)
+    destinationPath = os.path.join('D:\\DATA\\',mapName)
     if not os.path.exists(destinationPath):
         os.makedirs(destinationPath)
         
     #uses pikcle for dumping dictionary containg station ID's
     with open(destinationPath +'\\STATION_ID' + '.pickle', 'wb') as handle:
-        pickle.dump(STATION_ID, handle)
+        pickle.dump(STATION_ID, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     #downloads all data for all stations in station_ID and years in year
     get_data(YEARS, USAF_ID,WBAN_ID,keys,destinationPath)
