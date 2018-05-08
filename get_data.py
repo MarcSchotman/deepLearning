@@ -6,7 +6,7 @@ SUMMARY: SAVES ALL DATA LISTED IN KEYS FOR EACH WEATHER STATION IN THE LIST FOR 
 
 @author: m_a_s
 """
-def get_data(YEARS, USAF_ID,WBAN_ID,keys,destinationPath):
+def get_data(YEARS,USAF_ID, WBAN_ID, keys,destinationPath):
     import ftplib
     import io
     import gzip
@@ -19,21 +19,36 @@ def get_data(YEARS, USAF_ID,WBAN_ID,keys,destinationPath):
     #concatenates the two ID's with '-' in between
     STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(USAF_ID, WBAN_ID)]
     
+    #calculate total amount of years to keep track of progress
+    total_years=0
+    for years in YEARS:
+        total_years+=1
+        
     with ftplib.FTP(host=ftp_host) as ftpconn:
         ftpconn.login()
         counting=0
         for year in YEARS:
-            percentage_done = counting/(len(YEARS)*100)
+            percentage_done = counting/(total_years*100)
             counting+=1
-            print("Downloading and processing files for year ", year,"....",round(percentage_done,1),"% completed")
-        
+            print("Downloading and processing files for year ", year,round(percentage_done,1),"% of total completed....")
+            
+            counting_inter =0
             #initilize dict for each year        
             data_year={}
             for station_id in STATION_ID_LIST:
                 ftp_file = "pub/data/noaa/{YEAR}/{ID}-{YEAR}.gz".format(ID=station_id, YEAR=year)
                 
                 #show file download and percentage of completention
+                counting_inter+=1
+                percentage_done = counting_inter/len(STATION_ID_LIST)*100
+                if int(len(STATION_ID_LIST)/10) ==0:
+                    dummy_number = 1
+                else:
+                    dummy_number =  int(len(STATION_ID_LIST)/10)
                 
+                if counting_inter%dummy_number ==0:
+                    print("Year ", year, " ", round(percentage_done,1),"% completed....")
+        
                 
                 # read the whole file and save it to a BytesIO (stream)
                 response = io.BytesIO()
@@ -55,7 +70,6 @@ def get_data(YEARS, USAF_ID,WBAN_ID,keys,destinationPath):
                 #function from github which parses the nasty noaa data nicely for us.
                 parser.loads(content)                
                 reports = parser.get_reports()  
-                lenReport = len(reports)
                 
                 #initilize nested dict for current station
                 data_year[station_id] ={}
@@ -87,5 +101,5 @@ def get_data(YEARS, USAF_ID,WBAN_ID,keys,destinationPath):
             with open(full_path_name + '.pickle', 'wb') as handle:
                 pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("Finished downloads and processing of all files.")
-        return 0
+        
     

@@ -13,7 +13,7 @@ Created on Fri May  4 11:25:22 2018
 #minStartDate = int(20150000) #YearMonthDay
 #minEndDate = int(20180000)  #YearMonthDay
 
-def get_station_id(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter):
+def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter):
     import numpy as np
     import math
         
