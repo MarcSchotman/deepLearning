@@ -19,18 +19,17 @@ longitudeCenter = 4.3571
 startYear = '2017'
 endYear = '2018'
 
-
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
 
-r_list = [100]
+r_list = [50]
 
 for r in r_list:
     stations = filter_stations(minStartDate, minEndDate, r, longitudeCenter, lattitudeCenter)
     
     
     #DATA GATEHRED: 
-    keys = ['air_temperature','humidity','elevation','dew-point']#,'wind_speed','wind_direction','wind_observation_direction_type'
+    keys = ['datetime','air_temperature','humidity','elevation','dew-point']#,'wind_speed','wind_direction','wind_observation_direction_type'
         
     # identifies what data to get
     YEARS = range(int(startYear), int(endYear))
@@ -40,7 +39,7 @@ for r in r_list:
     STATION_ID = [USAF_ID, WBAN_ID]
     
     mapName = 'RADIUS' + str(r) +'KM'
-    destinationPath = os.path.join('D:\\DATA\\',mapName)
+    destinationPath = os.path.join('C:\\Users\\m_a_s\\Documents\\DUMMYDATA',mapName)
     if not os.path.exists(destinationPath):
         os.makedirs(destinationPath)
         
