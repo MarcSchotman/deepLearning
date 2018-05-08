@@ -85,8 +85,15 @@ def get_data(YEARS,USAF_ID, WBAN_ID, keys,destinationPath):
                 #append the features in the appropraite dictionary
                 #slowest process in here: big nested loop.. loop1~6k, loop2=len(keys)
                 for report in reports:
-                    for i in keys:                
-                        data_year[station_id][i].append(getattr(report, i ))
+                    for key in keys:
+                        #get numerical data from the parsed matrix if possible
+                        value = getattr(report,key)
+                        try:
+                            value_inserted = value._obs_value
+                        except AttributeError:
+                            value_inserted = value
+                        
+                        data_year[station_id][key].append(value_inserted)
                         #getattr(report,i) makes it: report.i using the variable i.
                         #report['air_temperature'] for example gives the air temperature of this line
             
@@ -101,5 +108,5 @@ def get_data(YEARS,USAF_ID, WBAN_ID, keys,destinationPath):
             with open(full_path_name + '.pickle', 'wb') as handle:
                 pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("Finished downloads and processing of all files.")
-        
-    
+
+
