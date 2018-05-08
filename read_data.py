@@ -3,13 +3,14 @@ import re # for stripping name (#curcentStationName = curcentStationName.strip('
 
 # loop over these years
 yearStart = 2012
-yearEnd = 2017
+yearEnd = 2013
 years = list(range(yearStart, yearEnd + 1))
+keys = ['USAF', 'WBAN'] # for station list
 
 # init
-station = {}
-station = station.fromkeys(years)
-stationNames = {}
+stationYear = {}
+stationYear = stationYear.fromkeys(years)
+# stationID = {}
 
 #Open ftp connection
 #host name
@@ -21,10 +22,18 @@ ftp.cwd('pub/data/noaa/isd-lite/')
 parent_dir = ftp.pwd()
 
 for year in years:
-    station[year] = [] # init dict as list
+    stationYear[year] = [] # init dict as list
+    
+    # reset dict
+#    stationID = stationID.fromkeys(keys)
+#    for key in keys:
+#                stationID[key] = []
+    
     
     print('Extracting year data from ' + str(year) + '.')
     ftp.cwd(str(year)) # go to year dict
+    
+
     
     
     #List the files in the current directory
@@ -37,15 +46,44 @@ for year in years:
         # split the current line at spaces, and get last entry (where station ID is located)
         curcentStationID = ii.split(' ')[-1]
         
-        # remove year.gz from station ID, and store station ID in dict
+        # remove year.gz from stationYears ID, and store stationYears ID in dict
         curcentStationID = re.sub('-' + str(year) +'.gz', '', curcentStationID)
-        station[year].append(curcentStationID)
-
+        
+        # split at -
+        curcentStationID = curcentStationID.split('-')
+        
+        # map to int
+        curcentStationID = list(map(int, curcentStationID))
+         
+        stationYear[year].append(curcentStationID)
+        
+        # add station ID to dict
+        # stationID[keys[0]].append(curcentStationID[0])
+        # stationID[keys[1]].append(curcentStationID[1])
+        
+    # add station to corresponding year
+    # stationYear[year] = stationID
     # Go to parent dictionary
     ftp.cwd('..')
     
 # example
-print(station[year][1])
+print(stationYear[year])
+
+# Check which station was active in each year
+activeEachYear = stationYear[2012]
+
+for year in years:
+    for stationID in stationYear[year]:
+        
+        if contains(activeEachYear, stationID)
+
+stationYear2012 = stationYear[2012]
+stat
+result = cmp(stationYear[2012], stationYear[2012])
+
+
+shared_items = set(stationYear2012.items()) & set(stationYear2012.items())
+print(shared_items)
 
 ftp.quit()
 
