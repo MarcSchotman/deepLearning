@@ -16,7 +16,9 @@ Created on Fri May  4 11:25:22 2018
 def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter):
     import numpy as np
     import math
-        
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.basemap import Basemap
+    
     def string_is_number(s):
         if s[0] in ('-', '+'):
             return is_number(s[1:])
@@ -55,7 +57,24 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
                 checking = False
         
         return succes
-          
+       
+    def plot_stations(stations):
+        m = Basemap(projection='hammer',lon_0=0) #(projection = 'merc', llcrnrlat=30, urcrnrlat=90, llcrnrlon=-30, urcrnrlon=-35)
+        #
+        m.drawcoastlines()
+        m.fillcontinents (color='lightgray', lake_color='lightblue')
+        # m.drawparallels(np.arange(-90.,91.,30.))
+        # m.drawmeridians(np.arange(-180.,181.,60.))
+        m.drawmapboundary(fill_color='aqua')
+        
+        m.drawcounties()
+        x, y = m(stations['LON'],stations['LAT'])
+        #x, y = m(*zip(*[hawaii, austin, washington, chicago, losangeles]))
+        m.plot(x,y, marker ='o', markersize=5, markerfacecolor='red', linewidth=0)
+        #
+        plt.title('Mercator Projection')
+        plt.show()    
+    
     def convert_number(s):
         line = []
         count = 0
