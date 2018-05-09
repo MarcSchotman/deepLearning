@@ -57,10 +57,8 @@ for r in r_list:
             prev_STATION_ID_LIST = pickle.load(handle)
             prev_USAF = prev_STATION_ID_LIST[0]
             prev_WBAN = prev_STATION_ID_LIST[1]
-            
-            print(prev_STATION_ID_LIST)
     
-        #remove the already downloaded ID's from the ' to download list'      
+        #remove the already downloaded ID's from the 'to download list'      
         removed_stations = []
         for index in range(0,len(prev_USAF)):
             
