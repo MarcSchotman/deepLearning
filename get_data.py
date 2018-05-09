@@ -11,7 +11,6 @@ def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
     import io
     import gzip
     import ish_parser# from: https://github.com/haydenth/ish_parser
-    import pickle
     import os.path
     ftp_host = "ftp.ncdc.noaa.gov"
     parser = ish_parser.ish_parser()

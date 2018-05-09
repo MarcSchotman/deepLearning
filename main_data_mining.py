@@ -4,19 +4,18 @@ Created on Mon May  7 22:02:59 2018
 
 @author: m_a_s
 """
-
+#import function
 import numpy as np
 import os.path
 import pickle
-#import function
 from filter_stations import filter_stations
 from get_data import get_data
 
 #lattitude and longitude Delft
 lattitudeCenter = 52.0116
 longitudeCenter = 4.3571
-startYear = '2010'
-endYear = '2011'
+startYear = '2017'
+endYear = '2018'
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
 map_location = 'D:\\DATA_NEW'
@@ -24,7 +23,7 @@ map_location = 'D:\\DATA_NEW'
 #DATA GATEHRED: 
 keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type']
     
-r_list = [50, 100, 200, 400,800]
+r_list = [50, 100,110]
 
 for r in r_list:
     print('RADIUS: ', r, ' KM')
@@ -33,8 +32,8 @@ for r in r_list:
     # identifies what data to get
     YEARS = range(int(startYear), int(endYear))
     
-    USAF_ID = stations['USAF']
-    WBAN_ID = stations['WBAN']
+    USAF_ID = list(stations['USAF'])
+    WBAN_ID = list(stations['WBAN'])
     STATION_ID = [USAF_ID, WBAN_ID]
     
     mapName = 'RADIUS' + str(r) +'KM'
@@ -49,6 +48,7 @@ for r in r_list:
     
     #check which stations have already been downloaded previously
     current_index_r = r_list.index(r)
+    removed_stations = []
     if current_index_r != 0:
         prev_mapName='RADIUS' +str(r_list[current_index_r -1]) + 'KM'
         previous_path = os.path.join(map_location,prev_mapName)        
@@ -59,7 +59,6 @@ for r in r_list:
             prev_WBAN = prev_STATION_ID_LIST[1]
     
         #remove the already downloaded ID's from the 'to download list'      
-        removed_stations = []
         for index in range(0,len(prev_USAF)):
             
             if prev_USAF[index] in USAF_ID:
@@ -69,7 +68,8 @@ for r in r_list:
                     USAF_ID.remove(prev_USAF[index])
                     WBAN_ID.remove(prev_WBAN[index])
                     removed_stations.append([prev_USAF[index], prev_WBAN[index]])
-                    
+    print('Stations to download:',len(USAF_ID))              
+    print('Stations already downloaded:',len(removed_stations))
     #downloads all data for all stations in station_ID and years in year
     for year in YEARS:
         try:
@@ -92,7 +92,7 @@ for r in r_list:
                 station_id = removed_stations[index][0] + '-' + removed_stations[index][1]
                 data_year[station_id] = []
                 data_year[station_id] = prev_data_year[station_id].copy()
-            
+        print('Total stations being saved:',len(data_year))    
         
         #time to save the dict
         file_name = str(year)
@@ -104,6 +104,4 @@ for r in r_list:
         #uses pikcle for dumping dictionary
         with open(full_path_name + '.pickle', 'wb') as handle:
             pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print("Finished YEAR ", year)
-        
-        
+print('Download completed')
