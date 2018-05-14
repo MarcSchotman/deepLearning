@@ -264,7 +264,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     stations = filter_station_radius(stations,keys,longitudeCenter,lattitudeCenter,r_max)
     stations = filter_station_activity(stations,keys,minStartDate,minEndDate)
     
-    plot_stations(stations)
+    # plot_stations(stations)
     return stations
 
 # test function

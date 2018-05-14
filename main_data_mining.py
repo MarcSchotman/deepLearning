@@ -10,20 +10,22 @@ import os.path
 import pickle
 from filter_stations import filter_stations
 from get_data import get_data
-
+import os # To get the current working directory use
 #lattitude and longitude Delft
 lattitudeCenter = 52.0116
 longitudeCenter = 4.3571
 startYear = '2017'
 endYear = '2018'
+r_list = [50, 100, 110]
+
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
 map_location = 'D:\\DATA_NEW'
+map_location = os.getcwd() + '\data'
+# cwd = os.getcwd()
 
 #DATA GATEHRED: 
 keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type']
-    
-r_list = [50, 100,110]
 
 for r in r_list:
     print('RADIUS: ', r, ' KM')
