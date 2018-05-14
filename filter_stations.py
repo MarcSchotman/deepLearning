@@ -2,7 +2,7 @@
 """
 Created on Fri May  4 11:25:22 2018
 
-@author: Taeke
+@author: Marc & Taeke
 """
 
 
