@@ -266,12 +266,3 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     
     # plot_stations(stations)
     return stations
-
-# test function
-lattitudeCenter = 52.0116
-longitudeCenter = 4.3571              
-startDate = 20150101
-endDate = 20170101
-radius = 1000
-stations = filter_stations(startDate, endDate, radius, longitudeCenter, lattitudeCenter)
-# filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)

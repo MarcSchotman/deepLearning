@@ -6,7 +6,7 @@ SUMMARY: SAVES ALL DATA LISTED IN KEYS FOR EACH WEATHER STATION IN THE LIST FOR 
 
 @author: m_a_s
 """
-def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
+def get_data(year,STATION_ID_LIST, keys,destinationPath):
     import ftplib
     import io
     import gzip
@@ -15,15 +15,13 @@ def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
     ftp_host = "ftp.ncdc.noaa.gov"
     parser = ish_parser.ish_parser()
     
-    #concatenates the two ID's with '-' in between
-    STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(USAF_ID, WBAN_ID)]
-        
     with ftplib.FTP(host=ftp_host, timeout = 600) as ftpconn:
         ftpconn.login()
         counting =0
         #initilize dict for each year        
         data_year={}
         print('Downloading year ', year)
+        LastReportLength=0
         for station_id in STATION_ID_LIST:
             ftp_file = "pub/data/noaa/{YEAR}/{ID}-{YEAR}.gz".format(ID=station_id, YEAR=year)
             
@@ -58,7 +56,10 @@ def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
                 
             #function from github which parses the nasty noaa data nicely for us.
             parser.loads(content)                
-            reports = parser.get_reports()  
+            reports = parser.get_reports()
+            #selects the reports corresponding to the alst station
+            reports = reports[LastReportLength:]
+            LastReportLength += len(reports)
             
             #initilize nested dict for current station
             data_year[station_id] ={}
@@ -73,6 +74,7 @@ def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
             
             #append the features in the appropraite dictionary
             #slowest process in here: big nested loop.. loop1~6k, loop2=len(keys)
+            
             for report in reports:
                 for key in keys:
                     #get numerical data from the parsed matrix
@@ -89,8 +91,33 @@ def get_data(year,USAF_ID, WBAN_ID, keys,destinationPath):
                     data_year[station_id][key].append(value_inserted)
                     #getattr(report,i) makes it: report.i using the variable i.
                     #report['air_temperature'] for example gives the air temperature of this line
-        return data_year
+            reports = None
+            content = None
+        return data_year, possible_keys
 
-
-
-
+import os.path
+##testing function
+#lattitudeCenter = 52.0116
+#longitudeCenter = 4.3571
+#startYear = '2017'
+#endYear = '2018'
+#r_list = [40]
+#STATION_ID = [['063300', '063430', '063440'], ['99999', '99999', '99999']]
+#USAF_ID = STATION_ID[0]
+#WBAN_ID = STATION_ID[1]
+##concatenates the two ID's with '-' in between
+#STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(USAF_ID, WBAN_ID)]
+#    
+#keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
+#minStartDate = int(startYear+'0000') #YearMonthDay
+#minEndDate = int(endYear+'0000')  #YearMonthDay
+#map_location = 'C:\\Users\\m_a_s\\Desktop\\data'
+#mapName = 'RADIUS' + '40'+'KM'
+#destinationPath = os.path.join(map_location,mapName)
+#    
+#    
+#    
+#YEARS = range(int(startYear), int(endYear))
+#for year in YEARS:
+#    [data_year, possible_keys] = get_data(year, STATION_ID_LIST,keys,destinationPath)
+#    print(possible_keys)

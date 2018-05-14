@@ -16,27 +16,25 @@ lattitudeCenter = 52.0116
 longitudeCenter = 4.3571
 startYear = '2017'
 endYear = '2018'
-r_list = [50, 100, 110]
+r_list = [100]
 
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
-map_location = 'D:\\DATA_NEW'
-map_location = os.getcwd() + '\data'
-# cwd = os.getcwd()
+map_location = 'C:\\Users\\m_a_s\\Desktop\\data'
 
 #DATA GATEHRED: 
-keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type']
+keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
 
 for r in r_list:
     print('RADIUS: ', r, ' KM')
     stations = filter_stations(minStartDate, minEndDate, r, longitudeCenter, lattitudeCenter)
-        
     # identifies what data to get
     YEARS = range(int(startYear), int(endYear))
     
     USAF_ID = list(stations['USAF'])
     WBAN_ID = list(stations['WBAN'])
-    STATION_ID = [USAF_ID, WBAN_ID]
+   #concatenates the two ID's with '-' in between
+    STATION_ID_LIST=["{}-{:2}".format(a_, b_) for a_, b_ in zip(USAF_ID, WBAN_ID)]
     
     mapName = 'RADIUS' + str(r) +'KM'
     destinationPath = os.path.join(map_location,mapName)
@@ -46,7 +44,7 @@ for r in r_list:
         
     #uses pikcle for dumping dictionary containg station ID's
     with open(destinationPath +'\\STATION_ID' + '.pickle', 'wb') as handle:
-        pickle.dump(STATION_ID, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(STATION_ID_LIST, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     #check which stations have already been downloaded previously
     current_index_r = r_list.index(r)
@@ -75,12 +73,12 @@ for r in r_list:
     #downloads all data for all stations in station_ID and years in year
     for year in YEARS:
         try:
-            data_year = get_data(year, USAF_ID,WBAN_ID,keys,destinationPath)
+            data_year = get_data(year, STATION_ID_LIST,keys,destinationPath)
         except Exception as ex:
             print('ERROR:', ex)
             print('trying again...')
             try:
-                data_year = get_data(year, USAF_ID,WBAN_ID,keys,destinationPath)
+                data_year = get_data(year, STATION_ID_LIST, keys,destinationPath)
             except Exception as ex:
                 print('ERROR: ',ex)
                 print('STOPPING DOWNLOAD.')

@@ -6,30 +6,35 @@ Created on Mon May 14 13:52:27 2018
 """
 
 import matplotlib.pyplot as plt
-import matplotlib
+import matplotlib #Type "%matplotlib qt"  in console to show figure in seperate window
 import pickle
-import os
+import os.path
 import math
 import numpy as np
 
-dataLocation = os.getcwd() + '\\data\\RADIUS100KM\\2017.pickle'
+#dataLocation = os.getcwd() + '\\data\\RADIUS40KM\\2017.pickle'
+mapLocation = 'C:\\Users\\m_a_s\\Desktop\\data\\RADIUS100KM'
 
+dataLocation = mapLocation + '\\2017.pickle'
 file = open(dataLocation, 'rb')
-
 data = pickle.load(file)
 
-stationIDs = list(data.keys())
+datalocationStationID= mapLocation +'\\STATION_ID.pickle'
+file = open(datalocationStationID, 'rb')
+stationIDs = pickle.load(file)
+
 numberOfStations = len(stationIDs)
 
 keys = ['air_temperature', 'datetime']
 
 useless = []
-count = 0
-
 # for the third station we first 40% of the data is currupted, however 
 # somewhere around index 18000 the date seems to reset back to 2017-01-01 and 
 # from then on we have proper data. Why is the time not constantly increasing?
-for ID in stationIDs[0:3]:
+plot_number = math.ceil(numberOfStations/3)
+pltcount = 1
+count =0 
+for ID in stationIDs:
     print('Station number '+ str(count) + ', with ID: ' + str(ID))
     # extract data
     temperature = np.array(data[ID]['air_temperature'])
@@ -44,17 +49,14 @@ for ID in stationIDs[0:3]:
         print(' is useless')
     else: 
         
-        print(' missing data: '+ str(missingData) +  ', which is: ' + str(missingData/len(temperature) * 100) + '%')
+        print(str(round(missingData/len(temperature) * 100,2)) + '% of data missing: ' + str(missingData) +  ' data points' )
         # temperature[temperature > 500] = math.nan
+        plt.subplot(plot_number,3,pltcount)
         plt.plot(date, temperature, label = ID)
-        plt.plot(dateNumeric, label = ID)
-    
-    count = count + 1
-    
-plt.legend()
-
-plt.ylabel('Temperatre [C]')
-plt.xlabel('Data Sample')
-
-plt.grid(True)
+        plt.legend()
+#        plt.ylabel('Temperatre [C]')
+#        plt.xlabel('Data Sample')
+        #plt.plot(dateNumeric, label = ID)
+        pltcount += 1
+    count +=1
 plt.show()
