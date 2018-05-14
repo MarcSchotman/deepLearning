@@ -4,14 +4,8 @@ Created on Fri May  4 11:25:22 2018
 
 @author: Taeke
 """
-#
 
-#
-#lattitude = 52.0116
-#longitude = 4.3571
-#r_max = 100
-#minStartDate = int(20150000) #YearMonthDay
-#minEndDate = int(20180000)  #YearMonthDay
+
 
 def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter):
     import numpy as np
@@ -135,17 +129,13 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         return stationsOut
     
     def get_active_station_ids(years):
-   
-        # keys = ['USAF', 'WBAN'] # for station list
         
         # init
         stations = {}
         stations = stations.fromkeys(years)
-        # stationID = {}
         
         #Open ftp connection
-        #host name
-        ftp = ftplib.FTP('ftp.ncdc.noaa.gov')
+        ftp = ftplib.FTP('ftp.ncdc.noaa.gov') #host name
         ftp.login()
         
         # set path
@@ -154,11 +144,6 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         
         for year in years:
             stations[year] = [] # init dict as list
-            
-            # reset dict
-        #    stationID = stationID.fromkeys(keys)
-        #    for key in keys:
-        #                stationID[key] = []
                   
             print('Extracting year IDs from ' + str(year) + '.')
             ftp.cwd(str(year)) # go to year dict
@@ -177,19 +162,14 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
                 
                 # split at -
                 curcentStationID = curcentStationID.split('-')
-
                 
                 # append
                 stations[year].append(curcentStationID)
                 
-                # add station ID to dict
-                # stationID[keys[0]].append(curcentStationID[0])
-                # stationID[keys[1]].append(curcentStationID[1])
-                
-            # add station to corresponding year
-            # stationYear[year] = stationID
             # Go to parent dictionary
             ftp.cwd('..')
+            
+        # close ftp connection
         ftp.quit()
         return stations
     
@@ -201,23 +181,22 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
             stationsOut[key] = []
         
         # get year list
+        # easiest to only get first four numbers by converting to string, bit of a hack...
         yearStart = int(str(minStartDate)[:4])
         yearEnd = int(str(minEndDate)[:4])
         years = list(range(yearStart, yearEnd + 1))
-        print(yearStart)
-        stations = get_active_station_ids(years)
-        # Check which station was active in each year
-        activeEachYearInit = stations[yearStart]
-        
 
-        activeEachYear = activeEachYearInit
-        delCount = 0
+        # get the IDs of stations which have been active in any of the selected years
+        stations = get_active_station_ids(years)
+        
+        # Check which station was active in each year
+        activeEachYear = stations[yearStart]
         delID = []
         
         # delete staions which are not active each year
         for year in years:
-            print('Year: ' + str(year))
-            
+            print('Determine inactive station from Year: ' + str(year))
+            delCount = 0
             # loop over active each year
             for ID in activeEachYear:
                 # print(len(activeEachYear))
@@ -228,17 +207,22 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
                     
                     activeEachYear.remove(ID)
         
-        print('Deleted number of stations:' + str(delCount))
         # get Iindexes from stations we want to keep
         indexes = []
+        delCount = 0
+        
         for i in range(0, len(stationsIn[keys[0]])):
             
             currentStation = [stationsIn[keys[0]][i], stationsIn[keys[1]][i]]
             if (currentStation in activeEachYear):
                 indexes.append(i)
-                
+            else:
+                delCount = delCount + 1
+               
+        print(' Deleted ' + str(delCount) + ' inactive station(s)')
+        
         for key in keys:
-            stationsOut[key] = np.take(stationsIn[key],indexes) #INDEXES[0] NEEDED
+            stationsOut[key] = np.take(stationsIn[key],indexes)
             
         return stationsOut
     
@@ -279,10 +263,15 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     stations = filter_station_date(stations,keys,minStartDate,minEndDate)
     stations = filter_station_radius(stations,keys,longitudeCenter,lattitudeCenter,r_max)
     stations = filter_station_activity(stations,keys,minStartDate,minEndDate)
+    
+    plot_stations(stations)
     return stations
-            
 
+# test function
 lattitudeCenter = 52.0116
-longitudeCenter = 4.3571                        
-stations = filter_stations(20150101, 20170101, 100, longitudeCenter, lattitudeCenter)
+longitudeCenter = 4.3571              
+startDate = 20150101
+endDate = 20170101
+radius = 1000
+stations = filter_stations(startDate, endDate, radius, longitudeCenter, lattitudeCenter)
 # filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
