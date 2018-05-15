@@ -85,7 +85,7 @@ for year in YEARS:
             
             # store in new dictionary
         for key in currentKeys:
-            data_total[year][ID][key] = data[ID][key][indexMeasurement]
+            data_total[year][ID][key] = data[ID][key][np.array(indexMeasurement)]
             print('appending', data[ID][key][indexMeasurement], 'to key ', key)
             # temperatureList[indexPlacement] = temperaturesMeasurment[indexMeasurement]
             
