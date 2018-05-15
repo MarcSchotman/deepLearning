@@ -2,11 +2,7 @@ from keras import Input, Model
 from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np
 
 
-def append(input, digit):
-    pass
-
-
-def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=1, seq_len_pred=7):
+def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_len_pred=7):
     input = Input(shape=(seq_len_train, n_features * n_stations),
                   batch_shape=(batch_size, seq_len_train, n_features * n_stations))
     conv1 = Conv1D(filters=1, kernel_size=2)(input)
@@ -17,6 +13,20 @@ def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=1, seq_le
     dense2 = Dense(units=1, activation="tanh")(lstm)
     dense3 = Dense(units=seq_len_pred, activation="linear")(dense2)
     model = Model(input, dense3)
+    return model
+
+
+def basic_lstm(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_len_pred=7):
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    dense1 = Dense(units=1, activation="elu")(input)
+    dense2 = Dense(units=1, activation="elu")(dense1)
+    lstm = LSTM(units=7, stateful=True)(dense2)
+    dense2 = Dense(units=1, activation="tanh")(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense2)
+
+    model = Model(input, out)
     return model
 
 
@@ -35,3 +45,6 @@ if __name__ == '__main__':
     model.fit(x=monday_til_saturday, y=sunday, epochs=1, batch_size=3)
     prediction = model.predict(monday_til_saturday, batch_size=3, verbose=2)
     print(prediction)
+
+models = {'meijer': meijer_net,
+          'basic_lstm': basic_lstm}
