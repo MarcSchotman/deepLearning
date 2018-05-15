@@ -4,26 +4,29 @@ Created on Mon May  7 22:02:59 2018
 
 @author: m_a_s
 """
-#import function
+
+#INPUTS
+lattitudeCenter = 52.0116 #lattitude and longitude Delft
+longitudeCenter = 4.3571
+startYear = '2015'
+endYear = '2018'
+r_list = [70] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
+
+
+#import functions
 import numpy as np
 import os.path
 import pickle
 from filter_stations import filter_stations
 from get_data import get_data
 import os # To get the current working directory use
-#lattitude and longitude Delft
-lattitudeCenter = 52.0116
-longitudeCenter = 4.3571
-startYear = '2017'
-endYear = '2018'
-r_list = [100]
 
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
-map_location = 'C:\\Users\\m_a_s\\Desktop\\data'
+map_location = os.getcwd() + '\\data'
 
 #DATA GATEHRED: 
-keys = ['datetime','air_temperature','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
+keys = ['datetime','air_temperature','sea_level_pressure','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
 
 for r in r_list:
     print('RADIUS: ', r, ' KM')
@@ -72,6 +75,7 @@ for r in r_list:
     print('Stations already downloaded:',len(removed_stations))
     #downloads all data for all stations in station_ID and years in year
     for year in YEARS:
+        #Attemps three times to download data before stopping
         try:
             data_year = get_data(year, STATION_ID_LIST,keys,destinationPath)
         except Exception as ex:
@@ -81,7 +85,12 @@ for r in r_list:
                 data_year = get_data(year, STATION_ID_LIST, keys,destinationPath)
             except Exception as ex:
                 print('ERROR: ',ex)
-                print('STOPPING DOWNLOAD.')
+                print('trying again (second time)...')
+                try:
+                    data_year = get_data(year, STATION_ID_LIST, keys,destinationPath)
+                except Exception as ex:
+                    print('ERROR: ',ex)
+                    print('STOPPING DOWNLOAD.')
         
         #add previously downloaded data to the current data_year
         if current_index_r != 0:        

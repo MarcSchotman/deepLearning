@@ -93,9 +93,9 @@ def get_data(year,STATION_ID_LIST, keys,destinationPath):
                     #report['air_temperature'] for example gives the air temperature of this line
             reports = None
             content = None
-        return data_year, possible_keys
+        return data_year
 
-import os.path
+#import os.path
 ##testing function
 #lattitudeCenter = 52.0116
 #longitudeCenter = 4.3571
