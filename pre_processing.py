@@ -19,8 +19,27 @@ import pytz
 from find_stations_unusable_temperatures import find_stations_unusable_temperatures
 import time
 
-def nearest(items, pivot):
-    return min(items, key=lambda x: abs(x - pivot))
+def find_matched_indexes(dateList, datesStation):
+    index = 1 #NEEDS TO BE 1
+    indexMatches = []
+    
+    for date in dateList:
+        match = False
+        last_delta = abs(date - datesStation[index-1])
+        while match==False:
+            delta = abs(date - datesStation[index])
+            if delta > last_delta:
+                indexMatches.append(index-1)
+                match =True
+                #makes sure that when at the last index it stays there i.e. not index+=1
+            elif (index) == len(datesStation)-1:
+                indexMatches.append(index)
+                match =True
+            else:
+                #only continue if there was no match
+                index +=1    
+                last_delta = delta
+    return indexMatches
         
 def get_number_of_hours_year(year): 
     if (year % 4) == 0 and (year % 100 != 0 or year % 400 == 0):
@@ -95,12 +114,9 @@ for year in YEARS:
         data_processed[ID] = dict.fromkeys(currentKeys, [])
         #get datetime list from station
         datesMeasurement = data_year[ID]['datetime']
-        indexMeasurement = []
   
         tic = time.clock()
-        for date in dateList:
-            nearestDate = nearest(datesMeasurement, date)
-            indexMeasurement.append(datesMeasurement.index(nearestDate))
+        indexMatches = find_matched_indexes(dateList,datesMeasurement)
         toc = time.clock()
         print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
 
@@ -109,7 +125,7 @@ for year in YEARS:
             if key == 'datetime':
                 data_processed[ID][key] = dateList            
             else:
-                data_processed[ID][key] = [ data_year[ID][key][index] for index in indexMeasurement ]
+                data_processed[ID][key] = [ data_year[ID][key][index] for index in indexMatches ]
 
         #have to assign dummy value otherwise deleted key gets printed
     #SAVE DICTIONARIES
