@@ -6,15 +6,16 @@ def append(input, digit):
     pass
 
 
-def meijer_net():
-    input = Input(shape=(7, 2), batch_shape=(3, 7, 2))
+def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=1, seq_len_pred=7):
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
     conv1 = Conv1D(filters=1, kernel_size=2)(input)
     pool1 = MaxPooling1D()(conv1)
     dense1 = Dense(units=1, activation="elu")(pool1)
     # z = Lambda(append)(dense1)
     lstm = LSTM(units=7, stateful=True)(dense1)
     dense2 = Dense(units=1, activation="tanh")(lstm)
-    dense3 = Dense(units=1, activation="linear")(dense2)
+    dense3 = Dense(units=seq_len_pred, activation="linear")(dense2)
     model = Model(input, dense3)
     return model
 
