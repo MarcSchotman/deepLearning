@@ -19,6 +19,8 @@ import pytz
 from find_stations_unusable_temperatures import find_stations_unusable_temperatures
 import time
 
+
+
 def find_matched_indexes(dateList, datesStation):
     index = 1 #NEEDS TO BE 1
     indexMatches = []
@@ -49,17 +51,17 @@ def get_number_of_hours_year(year):
     return days * 24
     
 #map location unprocessed data
-mapLocation = os.getcwd() + '\\data\\' + 'RADIUS' + RADIUS + 'KM'
+mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS', RADIUS, 'KM')
 
 #maplocation processed data
-processedFilesLocation = os.getcwd() + '\\data\\RADIUS' +RADIUS + 'KM_PROCESSED'
+processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', RADIUS, 'KM_PROCESSED')
 
 # define VALUES
 YEARS = range(startYear, endYear)
 missingValue = 999.9
 
 # load station ID current year
-datalocationStationID= mapLocation +'\\STATION_ID.pickle'
+datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
 file = open(datalocationStationID, 'rb')
 currentUsableStations = pickle.load(file)
 
@@ -68,7 +70,7 @@ tic = time.clock()
 for year in YEARS:
     # get path current year
     yearString = str(year)
-    dataLocation = mapLocation + '\\' + yearString + '.pickle'
+    dataLocation = os.path.join(mapLocation, yearString + '.pickle')
 
     # load data current year
     file = open(dataLocation, 'rb')
@@ -94,7 +96,7 @@ for year in YEARS:
     
     #get path current year
     yearString = str(year)
-    dataLocation = mapLocation + '\\' + yearString + '.pickle'
+    dataLocation = os.path.join(mapLocation, yearString + '.pickle')
 
     #load data current year
     file = open(dataLocation, 'rb')
@@ -132,9 +134,9 @@ for year in YEARS:
     if not os.path.exists(processedFilesLocation):
         os.makedirs(processedFilesLocation)
     
-    with open(processedFilesLocation + '\\' + str(year) + '.pickle', 'wb') as handle:
+    with open(os.path.join(processedFilesLocation, str(year) + '.pickle'), 'wb') as handle:
         pickle.dump(data_processed, handle, protocol=pickle.HIGHEST_PROTOCOL)
 #save station ID list          
-with open(processedFilesLocation + '\\STATION_ID.pickle', 'wb') as handle:
+with open(os.path.join(processedFilesLocation, 'STATION_ID.pickle'), 'wb') as handle:
     pickle.dump(usableStations, handle, protocol=pickle.HIGHEST_PROTOCOL)
 print('PROCESSING COMPLETED')  
