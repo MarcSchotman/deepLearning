@@ -20,11 +20,11 @@ def basic_lstm(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_l
     input = Input(shape=(seq_len_train, n_features * n_stations),
                   batch_shape=(batch_size, seq_len_train, n_features * n_stations))
 
-    dense1 = Dense(units=1, activation="elu")(input)
-    dense2 = Dense(units=1, activation="elu")(dense1)
+    dense1 = Dense(units=7, activation="elu")(input)
+    dense2 = Dense(units=7, activation="elu")(dense1)
     lstm = LSTM(units=7, stateful=True)(dense2)
-    dense2 = Dense(units=1, activation="tanh")(lstm)
-    out = Dense(units=seq_len_pred, activation="linear")(dense2)
+    dense3 = Dense(units=7, activation="tanh")(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense3)
 
     model = Model(input, out)
     return model

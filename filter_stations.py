@@ -11,7 +11,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     import numpy as np
     import math
     import matplotlib.pyplot as plt
-    from mpl_toolkits.basemap import Basemap
+    #from mpl_toolkits.basemap import Basemap
     import ftplib
     import re # for stripping name (#curcentStationName = curcentStationName.strip('-2017.gz'))
      
