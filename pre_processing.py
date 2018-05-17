@@ -58,7 +58,7 @@ processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', RADIUS, 'K
 
 # define VALUES
 YEARS = range(startYear, endYear)
-missingValue = 999.9
+missingValue = 999.9 # the key used for missing data
 
 # load station ID current year
 datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
@@ -68,6 +68,8 @@ currentUsableStations = pickle.load(file)
 tic = time.clock()
 #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
 for year in YEARS:
+    print('Determining useless stations for year: ', year)
+    
     # get path current year
     yearString = str(year)
     dataLocation = os.path.join(mapLocation, yearString + '.pickle')
@@ -75,11 +77,9 @@ for year in YEARS:
     # load data current year
     file = open(dataLocation, 'rb')
     data_year = pickle.load(file)
-    
     unusableStations = find_stations_unusable_temperatures(data_year, currentUsableStations, cut_off_percentage)
     
     for ID in unusableStations:
-        print('Unusable Station: ', ID)
         index = currentUsableStations.index(ID)    
         currentUsableStations.pop(index) #deletes stations
   #use these stations for preprocessing  
@@ -109,7 +109,7 @@ for year in YEARS:
     
     #loop over stations
     for ID in usableStations:
-        print('Processing station:', ID,'...')
+        # print('Processing station:', ID,'...')
         
         # get keys from data
         currentKeys = list(data_year[ID].keys())
@@ -120,12 +120,12 @@ for year in YEARS:
         tic = time.clock()
         indexMatches = find_matched_indexes(dateList,datesMeasurement)
         toc = time.clock()
-        print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
+        # print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
 
         #store in new dictionary
-        for key in currentKeys:        
+        for key in currentKeys:
             if key == 'datetime':
-                data_processed[ID][key] = dateList            
+                data_processed[ID][key] = dateList
             else:
                 data_processed[ID][key] = [ data_year[ID][key][index] for index in indexMatches ]
 
