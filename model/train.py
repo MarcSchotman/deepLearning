@@ -2,6 +2,7 @@ import argparse
 import sys
 
 from model.normalization import estimate_stats, normalize_generator
+from model.preprocess_generators import preprocess_generators
 
 sys.path.extend('../')
 from pprint import pprint
@@ -16,7 +17,7 @@ Script to start a training.
 
 It will create a directory in out/log_dir and save 
 the trained model [model.h5], a summary of the model/training configuration [summary.txt]
-and a summary of the training (loss/accuracy per epoch) [log.csv].
+and a summary of the training (loss per epoch) [log.csv].
 
 It will also create a tensorboard logfile that enables visualization of the model graph
 and training procedure with tensorboard. To visualize type:
@@ -30,10 +31,8 @@ n_samples = None
 log_dir = '../out/basic_lstm/'
 data_dir = '../data/RADIUS70KM_PROCESSED/'
 model_name = 'basic_lstm'
-seq_len_train = 7
-seq_len_pred = 7
 station_id_pred = None
-n_stations = 11
+n_stations = 5
 filenames_train = ['2015', '2016', '2017']
 filenames_valid = ['2017']
 
@@ -57,6 +56,9 @@ data_dir = args.data_dir
 model_name = args.model_name
 n_samples = args.n_samples
 
+if n_samples is None:
+    n_samples = int(len(filenames_train) * ENTRIES_PER_FILE / 7*24)
+
 if not log_dir.endswith('/'):
     log_dir += '/'
 if not data_dir.endswith('/'):
@@ -65,7 +67,7 @@ if not data_dir.endswith('/'):
 """
 Create Model
 """
-model = models[args.model_name](n_stations=n_stations, seq_len_pred=seq_len_pred, seq_len_train=seq_len_train)
+model = models[model_name](n_stations=n_stations, batch_size=batch_size)
 print('Training model: ', model_name)
 print('Storing files at: ', log_dir)
 print('Reading data from: ', data_dir)
@@ -78,32 +80,44 @@ Create dataset generators
 train_generator = generate_batch(data_dir=data_dir,
                                  filenames=filenames_train,
                                  batch_size=batch_size,
-                                 batches_per_file=int(ENTRIES_PER_FILE / seq_len_train),
+                                 batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                  station_id_pred=station_id_pred,
-                                 seq_len_pred=seq_len_pred,
-                                 seq_len_train=seq_len_train)
-
-if n_samples is None:
-    n_samples = len(filenames_train) * 365 * 24 / seq_len_train
-
-mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
-
-print("Dataset statistics: {} +- {}".format(mean, std))
-print("Number of samples: ", n_samples)
+                                 seq_len_pred=3 * 24,
+                                 seq_len_train=7 * 24)
 
 valid_generator = generate_batch(data_dir=data_dir,
                                  filenames=filenames_valid,
                                  batch_size=batch_size,
-                                 station_id_pred=station_id_pred)
+                                 batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
+                                 station_id_pred=station_id_pred,
+                                 seq_len_pred=3 * 24,
+                                 seq_len_train=7 * 24)
+
+# We estimate mean and stddev from the trainingset to normalize our data
+mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
+
+# We feed the train generators through normalize generators to normalize each batch before
+# feeding it in the network. This also gets rid of missing values
+train_generator = normalize_generator(train_generator, mean, std)
+valid_generator = normalize_generator(valid_generator, mean, std)
+
+# For now we predict only a mean temperature for day and night so we feed the generators
+# through preprocessors
+train_generator = preprocess_generators['mean_day_night'](train_generator)
+valid_generator = preprocess_generators['mean_day_night'](valid_generator)
+
+print("Dataset statistics: {} +- {}".format(mean, std))
+print("Number of samples: ", n_samples)
 
 """
 Configure Training
 """
-model.compile(optimizer='Adam', loss='mean_squared_error', metrics=['accuracy'])
+model.compile(optimizer='Adam', loss='mean_squared_error')
 training = Training(model=model,
                     out_file='model.h5',
                     batch_size=batch_size,
-                    train_gen=normalize_generator(train_generator, mean, std),
+                    train_gen=train_generator,
+                    valid_gen=valid_generator,
                     n_samples=n_samples,
                     log_dir=log_dir)
 pprint(training.summary)

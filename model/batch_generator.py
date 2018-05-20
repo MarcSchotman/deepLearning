@@ -63,7 +63,6 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
 
                         # Collect measurements for all features
                         for i_feature, feature in enumerate(features_train):
-                            # TODO the data is hourly while the function assumes daily
                             x_batch[i_batch, t - t_start, i_station, i_feature] = file_content[station_id][feature][t]
 
                 # Collect label (prediction) for that sample by choosing the following sequence
