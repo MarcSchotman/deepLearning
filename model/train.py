@@ -27,8 +27,8 @@ Run this script from terminal with :
 """
 batch_size = 8
 n_samples = None
-log_dir = '../out/basic_lstm'
-data_dir = '../data/RADIUS70KM_PROCESSED'
+log_dir = '../out/basic_lstm/'
+data_dir = '../data/RADIUS70KM_PROCESSED/'
 model_name = 'basic_lstm'
 seq_len_train = 7
 seq_len_pred = 7
@@ -57,10 +57,10 @@ data_dir = args.data_dir
 model_name = args.model_name
 n_samples = args.n_samples
 
-if not args.log_dir.endswith('/'):
-    args.log_dir += '/'
-if not args.data_dir.endswith('/'):
-    args.data_dir += '/'
+if not log_dir.endswith('/'):
+    log_dir += '/'
+if not data_dir.endswith('/'):
+    data_dir += '/'
 
 """
 Create Model
