@@ -51,10 +51,10 @@ def get_number_of_hours_year(year):
     return days * 24
     
 #map location unprocessed data
-mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS', RADIUS, 'KM')
+mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
 
 #maplocation processed data
-processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', RADIUS, 'KM_PROCESSED')
+processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
 
 # define VALUES
 YEARS = range(startYear, endYear)

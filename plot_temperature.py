@@ -14,8 +14,10 @@ import numpy as np
 #dataLocation = os.getcwd() + '\\data\\RADIUS40KM\\2017.pickle'
 #maplocation processed data
 RADIUS = 100
-processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', str(RADIUS), 'KM_PROCESSED')
+missingValue = 999.9 # the key used for missing data
 
+processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
+imageName = os.path.join('fig', 'temperature')
 
 dataLocation = processedFilesLocation + '\\2017.pickle'
 file = open(dataLocation, 'rb')
@@ -36,6 +38,7 @@ useless = []
 plot_number = math.ceil(numberOfStations/3)
 pltcount = 1
 count =0 
+plt.figure(figsize = (20,10))
 for ID in stationIDs:
     print('Station number '+ str(count) + ', with ID: ' + str(ID))
     # extract data
@@ -45,14 +48,14 @@ for ID in stationIDs:
     dateNumeric = matplotlib.dates.date2num(date)
     # determine wehter station is useless
     
-    missingData = sum(temperature > 500)
+    missingData = sum(temperature == missingValue)
     if missingData == len(temperature):
         useless.append(ID)
         print(' is useless')
     else: 
         
         print(str(round(missingData/len(temperature) * 100,2)) + '% of data missing: ' + str(missingData) +  ' data points' )
-        # temperature[temperature > 500] = math.nan
+        temperature[temperature == missingValue] = math.nan
         plt.subplot(plot_number,3,pltcount)
         plt.plot(date, temperature, label = ID)
         plt.legend()
@@ -62,3 +65,4 @@ for ID in stationIDs:
         pltcount += 1
     count +=1
 plt.show()
+plt.savefig(imageName + '.eps')
