@@ -38,6 +38,10 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
         file_content = pickle.load(open(data_dir + filename + '.pickle', 'rb'))
         n_stations = len(file_content)
 
+        if station_id_pred is None:
+            # TODO maybe replace this with the station that is closest to delft
+            station_id_pred = list(file_content.keys())[0]
+
         for _ in range(batches_per_file):
             # Create tensors to store data + labels
             x_batch = np.zeros((batch_size, seq_len_train
@@ -55,19 +59,20 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
                     # Collect data for all stations
                     for i_station, station_id in enumerate(file_content.keys()):
 
+                        if station_id is station_id_pred: continue
+
                         # Collect measurements for all features
                         for i_feature, feature in enumerate(features_train):
+                            # TODO the data is hourly while the function assumes daily
                             x_batch[i_batch, t - t_start, i_station, i_feature] = file_content[station_id][feature][t]
 
                 # Collect label (prediction) for that sample by choosing the following sequence
                 for t in range(t_end, t_end + seq_len_pred):
-
                     # Collect data for selected station
                     for i_feature, feature in enumerate(features_pred):
-                        y_batch[i_batch, t-t_end, i_feature] = file_content[station_id_pred][feature][t]
+                        y_batch[i_batch, t - t_end, i_feature] = file_content[station_id_pred][feature][t]
 
             # Reshape to tensor keras wants
             x_batch = np.reshape(x_batch, (batch_size, seq_len_train, n_stations * len(features_train)))
             y_batch = np.reshape(y_batch, (batch_size, seq_len_pred))
-
             yield x_batch, y_batch
