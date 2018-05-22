@@ -4,9 +4,9 @@ import random
 import numpy as np
 
 
-def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_size=3, seq_len_train=7,
+def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_file=20, batch_size=3, seq_len_train=7,
                    features_train=None,
-                   seq_len_pred=7, station_id_pred=0, features_pred=None, t_max=365):
+                   seq_len_pred=7, features_pred=None, t_max=365):
     """
     Generator to load data batch-wise. Formats data to matrix that is fed to the neural network.
     X contains the source Y contains the target.
@@ -38,15 +38,11 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
         file_content = pickle.load(open(data_dir + filename + '.pickle', 'rb'))
         n_stations = len(file_content)
 
-        if station_id_pred is None:
-            # TODO maybe replace this with the station that is closest to delft
-            station_id_pred = list(file_content.keys())[0]
-
         for _ in range(batches_per_file):
             # Create tensors to store data + labels
             x_batch = np.zeros((batch_size, seq_len_train
-                                , n_stations, len(features_train)))
-            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred)))
+                                , n_stations-1, len(features_train)))*np.nan
+            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred)))*np.nan
 
             # Collect data for one batch
             for i_batch in range(batch_size):
@@ -63,8 +59,7 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
 
                         # Collect measurements for all features
                         for i_feature, feature in enumerate(features_train):
-                            # TODO the data is hourly while the function assumes daily
-                            x_batch[i_batch, t - t_start, i_station, i_feature] = file_content[station_id][feature][t]
+                            x_batch[i_batch, t - t_start, i_station-1, i_feature] = file_content[station_id][feature][t]
 
                 # Collect label (prediction) for that sample by choosing the following sequence
                 for t in range(t_end, t_end + seq_len_pred):
@@ -73,6 +68,7 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
                         y_batch[i_batch, t - t_end, i_feature] = file_content[station_id_pred][feature][t]
 
             # Reshape to tensor keras wants
-            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, n_stations * len(features_train)))
+            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, (n_stations-1) * len(features_train)))
             y_batch = np.reshape(y_batch, (batch_size, seq_len_pred))
             yield x_batch, y_batch
+
