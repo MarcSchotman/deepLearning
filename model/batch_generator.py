@@ -45,8 +45,8 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
         for _ in range(batches_per_file):
             # Create tensors to store data + labels
             x_batch = np.zeros((batch_size, seq_len_train
-                                , n_stations, len(features_train)))
-            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred)))
+                                , n_stations-1, len(features_train)))*np.nan
+            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred)))*np.nan
 
             # Collect data for one batch
             for i_batch in range(batch_size):
@@ -63,7 +63,7 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
 
                         # Collect measurements for all features
                         for i_feature, feature in enumerate(features_train):
-                            x_batch[i_batch, t - t_start, i_station, i_feature] = file_content[station_id][feature][t]
+                            x_batch[i_batch, t - t_start, i_station-1, i_feature] = file_content[station_id][feature][t]
 
                 # Collect label (prediction) for that sample by choosing the following sequence
                 for t in range(t_end, t_end + seq_len_pred):
@@ -72,6 +72,6 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
                         y_batch[i_batch, t - t_end, i_feature] = file_content[station_id_pred][feature][t]
 
             # Reshape to tensor keras wants
-            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, n_stations * len(features_train)))
+            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, (n_stations-1) * len(features_train)))
             y_batch = np.reshape(y_batch, (batch_size, seq_len_pred))
             yield x_batch, y_batch
