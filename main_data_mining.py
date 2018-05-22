@@ -6,11 +6,11 @@ Created on Mon May  7 22:02:59 2018
 """
 
 #INPUTS
-lattitudeCenter = 52.0116 #lattitude and longitude Delft
-longitudeCenter = 4.3571
+lattitudeCenter = 39.7392 #lattitude and longitude Delft
+longitudeCenter = -104.9903
 startYear = '2015'
 endYear = '2018' #Will NOT download 2018
-r_list = [70] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
+r_list = [200] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
 
 
 #import functions
