@@ -37,7 +37,7 @@ def match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue):
         for key in currentKeys:
             if key == 'datetime':
                 outList[key] = dateList
-            elif missing:
+            elif missing and key !='latitude' and key !='longitude' and key != 'elevation' :
                 outList[key].append(missingValue)
             else:                    
                 outList[key].append(data_year[ID][key][index])
