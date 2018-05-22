@@ -24,7 +24,8 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     
     
     #map location unprocessed data
-    mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
+    deepLearningPath, _  = os.path.split(os.getcwd())
+    mapLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM')
     
     #maplocation processed data
     processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')

@@ -23,7 +23,8 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
     
     minStartDate = int(startYear+'0000') #YearMonthDay
     minEndDate = int(endYear+'0000')  #YearMonthDay
-    map_location = os.path.join(os.getcwd() , 'data')
+    deepLearningPath, _  = os.path.split(os.getcwd())
+    map_location = os.path.join(deepLearningPath , 'data')
     
     #DATA GATEHRED: 
     keys = ['datetime','air_temperature','sea_level_pressure','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
