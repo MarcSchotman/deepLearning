@@ -15,15 +15,15 @@ r_list = [200] #will downlaod for this list of radiuses making seperate dirs in 
 
 #import functions
 import numpy as np
-import os.path
+import os
 import pickle
 from filter_stations import filter_stations
 from get_data import get_data
-import os # To get the current working directory use
+
 
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
-map_location = os.getcwd() + '\\data'
+map_location = os.path.join(os.getcwd() , 'data')
 
 #DATA GATEHRED: 
 keys = ['datetime','air_temperature','sea_level_pressure','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
@@ -46,7 +46,8 @@ for r in r_list:
         os.makedirs(destinationPath)
         
     #uses pikcle for dumping dictionary containg station ID's
-    with open(destinationPath +'\\STATION_ID' + '.pickle', 'wb') as handle:
+    pathStationID = os.path.join(destinationPath,'STATION_ID.pickle')
+    with open(pathStationID, 'wb') as handle:
         pickle.dump(STATION_ID_LIST, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     #check which stations have already been downloaded previously
@@ -55,8 +56,9 @@ for r in r_list:
     if current_index_r != 0:
         prev_mapName='RADIUS' +str(r_list[current_index_r -1]) + 'KM'
         previous_path = os.path.join(map_location,prev_mapName)        
+        previousPathStations = os.path.join(previous_path,'STATION_ID.pickle')
         
-        with open(previous_path+'\\STATION_ID' + '.pickle','rb') as handle:
+        with open(previousPathStations,'rb') as handle:
             prev_STATION_ID_LIST = pickle.load(handle)
             prev_USAF = prev_STATION_ID_LIST[0]
             prev_WBAN = prev_STATION_ID_LIST[1]
@@ -93,8 +95,10 @@ for r in r_list:
                     print('STOPPING DOWNLOAD.')
         
         #add previously downloaded data to the current data_year
-        if current_index_r != 0:        
-            with open(previous_path+'\\' + str(year)+ '.pickle','rb') as handle:
+        if current_index_r != 0:
+            fileName = str(year) + '.pickle'
+            previousPathData = os.path.join(previous_path , fileName)
+            with open(previousPathData,'rb') as handle:
                 prev_data_year = pickle.load(handle)
                 
             for index in range(0,len(removed_stations)):
@@ -104,13 +108,13 @@ for r in r_list:
         print('Total stations being saved:',len(data_year))    
         
         #time to save the dict
-        file_name = str(year)
-        full_path_name = os.path.join(destinationPath,file_name)
+        fileName = str(year) +'.pickle'
+        full_path_name = os.path.join(destinationPath,fileName)
         
         if not os.path.exists(destinationPath):
                 os.makedirs(destinationPath)
                 
         #uses pikcle for dumping dictionary
-        with open(full_path_name + '.pickle', 'wb') as handle:
+        with open(full_path_name, 'wb') as handle:
             pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
 print('Download completed')
