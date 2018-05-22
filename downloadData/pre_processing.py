@@ -14,14 +14,23 @@ RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
 cut_off_percentage = 3 #ommits station with missing data > 3%
 maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
 missingValue = 999.9 # the key used for missing data
+hoursADay = 24 #how many hours a day to we want to use?
 
 import numpy as np
 import pickle
 import os.path
-from find_usable_stations import find_usable_stations
-import pytz
 import time
+import sys
+
+#location of functions
+functionsLocation = os.path.join(os.getcwd(), 'functions')
+sys.path.insert(0, functionsLocation)
+
+from find_usable_stations import find_usable_stations
+from match_dates import match_dates
 from get_number_of_hours_year import get_number_of_hours_year 
+from desired_date_list import desired_date_list
+
 
 #map location unprocessed data
 mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
@@ -32,16 +41,13 @@ processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS
 # define VALUES
 YEARS = range(startYear, endYear)
 
-
 #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
 #use these stations for preprocessing  
-usableStations = find_usable_stations(YEARS,mapLocation, maxDiff, missingValue,cut_off_percentage)
-
 tic = time.clock()
-
+usableStations = find_usable_stations(YEARS,mapLocation, hoursADay, maxDiff, missingValue,cut_off_percentage)
 toc = time.clock()
-print(round(toc-tic,2),'s: filtered stations')
 
+#puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
 for year in YEARS:
     data_processed = {}
     data_processed = dict.fromkeys(list(usableStations), {})
@@ -51,22 +57,19 @@ for year in YEARS:
     #get path current year
     yearString = str(year)
     dataLocation = os.path.join(mapLocation, yearString + '.pickle')
-
+    
     #load data current year
     file = open(dataLocation, 'rb')
-    data_year = pickle.load(file)
-    
-    #create range of dates
-    base = datetime.datetime(year, 1, 1, 0, 0, tzinfo = pytz.UTC)
-    numHours = get_number_of_hours_year(year)
-    dateList = [base + datetime.timedelta(hours=x) for x in range(0, numHours)]        
+    data_year = pickle.load(file)            
     
     #loop over stations
     for ID in usableStations:
         # get keys from data
         currentKeys = list(data_year[ID].keys())
         data_processed[ID] = dict.fromkeys(currentKeys, [])
-        #get datetime list from station
+        
+        #get desired dateList
+        dateList = desired_date_list(year, hoursADay)
   
         tic = time.clock()
         data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue)

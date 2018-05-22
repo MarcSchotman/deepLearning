@@ -17,6 +17,12 @@ r_list = [200] #will downlaod for this list of radiuses making seperate dirs in 
 import numpy as np
 import os
 import pickle
+import sys
+
+#location of functions
+functionsLocation = os.path.join(os.getcwd(), 'functions')
+sys.path.insert(0, functionsLocation)
+
 from filter_stations import filter_stations
 from get_data import get_data
 

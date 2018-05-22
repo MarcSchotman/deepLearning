@@ -4,15 +4,14 @@ Created on Tue May 22 10:38:34 2018
 
 @author: m_a_s
 """
-def find_usable_stations(YEARS,mapLocation, maxDiff, missingValue,cut_off_percentage):
+def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValue,cut_off_percentage):
     
     import pickle
     from get_number_of_hours_year import get_number_of_hours_year
     from find_stations_unusable_temperatures import find_stations_unusable_temperatures
-    import datetime
+    from desired_date_list import desired_date_list
     import os.path
     from match_dates import match_dates
-    import pytz
     
     datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
     file = open(datalocationStationID, 'rb')
@@ -31,9 +30,8 @@ def find_usable_stations(YEARS,mapLocation, maxDiff, missingValue,cut_off_percen
         
         #first check dates then check misding percentage
         #create range of dates
-        base = datetime.datetime(year, 1, 1, 0, 0, tzinfo = pytz.UTC)
-        numHours = get_number_of_hours_year(year)
-        dateList = [base + datetime.timedelta(hours=x) for x in range(0, numHours)]      
+        
+        dateList = desired_date_list(year,hoursADay)
         
         for ID in currentUsableStations:
             currentKeys = list(data_year[ID].keys())
@@ -44,4 +42,5 @@ def find_usable_stations(YEARS,mapLocation, maxDiff, missingValue,cut_off_percen
         for ID in unusableStations:
             index = currentUsableStations.index(ID)    
             currentUsableStations.pop(index) #deletes stations
+    print("Total deleted stations: ", len(unusableStations))
     return currentUsableStations            
