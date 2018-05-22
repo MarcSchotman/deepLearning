@@ -4,9 +4,9 @@ import random
 import numpy as np
 
 
-def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_file=20, batch_size=3, seq_len_train=7,
+def generate_batch(data_dir: str, filenames: [str], station_id_pred, batches_per_file=20, batch_size=3, seq_len_train=7,
                    features_train=None,
-                   seq_len_pred=7, features_pred=None, t_max=365):
+                   seq_len_pred=7, features_pred=None, t_max=365 * 24):
     """
     Generator to load data batch-wise. Formats data to matrix that is fed to the neural network.
     X contains the source Y contains the target.
@@ -41,13 +41,13 @@ def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_
         for _ in range(batches_per_file):
             # Create tensors to store data + labels
             x_batch = np.zeros((batch_size, seq_len_train
-                                , n_stations-1, len(features_train)))*np.nan
-            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred)))*np.nan
+                                , n_stations, len(features_train))) * np.nan
+            y_batch = np.zeros((batch_size, seq_len_pred, len(features_pred))) * np.nan
 
             # Collect data for one batch
             for i_batch in range(batch_size):
-                # Choose a random time step within the file to start
-                t_start = random.choice([n for n in range(t_max - seq_len_train)])
+                # Choose a random time step within the file to start.
+                t_start = random.choice([n for n in range(0,t_max - (seq_len_train+seq_len_pred), 24)])
                 t_end = t_start + seq_len_train
                 # Collect data for one time step
                 for t in range(t_start, t_end):
@@ -55,11 +55,9 @@ def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_
                     # Collect data for all stations
                     for i_station, station_id in enumerate(file_content.keys()):
 
-                        if station_id is station_id_pred: continue
-
                         # Collect measurements for all features
                         for i_feature, feature in enumerate(features_train):
-                            x_batch[i_batch, t - t_start, i_station-1, i_feature] = file_content[station_id][feature][t]
+                            x_batch[i_batch, t - t_start, i_station, i_feature] = file_content[station_id][feature][t]
 
                 # Collect label (prediction) for that sample by choosing the following sequence
                 for t in range(t_end, t_end + seq_len_pred):
@@ -68,7 +66,6 @@ def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_
                         y_batch[i_batch, t - t_end, i_feature] = file_content[station_id_pred][feature][t]
 
             # Reshape to tensor keras wants
-            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, (n_stations-1) * len(features_train)))
+            x_batch = np.reshape(x_batch, (batch_size, seq_len_train, n_stations * len(features_train)))
             y_batch = np.reshape(y_batch, (batch_size, seq_len_pred))
             yield x_batch, y_batch
-
