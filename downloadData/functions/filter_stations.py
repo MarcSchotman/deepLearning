@@ -180,9 +180,12 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
             delCount = 0
             # loop over active each year
             for ID in activeEachYear:
+                if ID[0] == '720528':
+                        print('Now at :',ID)
                 # print(len(activeEachYear))
                 if not(ID in stations[year]):
-                    
+                    if ID[0] == '720528':
+                        print('Deleted it')
                     delID.append(ID)
                     delCount = delCount + 1
                     
@@ -191,6 +194,8 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         # get Iindexes from stations we want to keep
         indexes = []
         delCount = 0
+        
+        # activeEachYear = activeEachYear.split('-')
         
         for i in range(0, len(stationsIn[keys[0]])):
             

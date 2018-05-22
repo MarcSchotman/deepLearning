@@ -37,6 +37,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     #use these stations for preprocessing  
     tic = time.clock()
     usableStations = find_usable_stations(YEARS,mapLocation, hoursADay, maxDiff, missingValue,cut_off_percentage)
+    print("Stations left:" ,len(usableStations))
     toc = time.clock()
     
     #puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
