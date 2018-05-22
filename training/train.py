@@ -2,12 +2,13 @@ import argparse
 import pickle
 import random
 import sys
+import os.path
 
+sys.path.extend(['../'])
 from training.normalization import estimate_stats, normalize_generator
 from training.preprocess_generators import preprocess_generators
 from training.utils import find_closest_station
 
-sys.path.extend('../')
 from pprint import pprint
 
 from file_utils import create_dirs, save_file, load_file
@@ -29,15 +30,21 @@ and training procedure with tensorboard. To visualize type:
 Run this script from terminal with :
  'python train.py --model_name X --data_dir X --batch_size X --n_samples X --log_dir X/X'
 """
+
+startYear = 2016
+endYear = 2018 #Will NOT download 2018
+validateYear = 2015
+radius = 200
+
 batch_size = 8
 n_samples = None
 log_dir = '../out/basic_lstm/'
-data_dir = '../data/RADIUS500KM/'
+data_dir = '../data/RADIUS200KM_PROCESSED/'
 model_name = 'basic_lstm'
 station_id_pred = None
-n_stations = 5
-filenames_train = [str(year) for year in range(2000, 2012)]
-filenames_valid = ['2013']
+n_stations = 17
+filenames_train = [str(year) for year in range(startYear, endYear)]
+filenames_valid = [str(validateYear)]
 
 ENTRIES_PER_FILE = 365 * 24
 
@@ -139,3 +146,11 @@ save_file(training.summary, name='summary.txt', path=log_dir)
 Start Training
 """
 training.start()
+
+"""
+for station_id in content.keys():
+   print(content[station_id]['latitude'][1000])
+   
+for station_id in content.keys():
+   print(content[station_id]['longitude'][1000])
+"""
