@@ -5,85 +5,39 @@ Created on Tue May 15 09:37:28 2018
 @author: Taeke
 """
 
+import datetime
 
 #INPUTS
-startYear = 2015
+startYear = 2017
 endYear = 2018 #downloads UPTILL endyear so NOT 2018
-RADIUS = '70' #ASSSUMES DATA IN /deepLearning/data
+RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
 cut_off_percentage = 3 #ommits station with missing data > 3%
+maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
+missingValue = 999.9 # the key used for missing data
+
 import numpy as np
 import pickle
 import os.path
-import datetime
+from find_usable_stations import find_usable_stations
 import pytz
-from find_stations_unusable_temperatures import find_stations_unusable_temperatures
 import time
+from get_number_of_hours_year import get_number_of_hours_year 
 
-
-
-def find_matched_indexes(dateList, datesStation):
-    index = 1 #NEEDS TO BE 1
-    indexMatches = []
-    
-    for date in dateList:
-        match = False
-        last_delta = abs(date - datesStation[index-1])
-        while match==False:
-            delta = abs(date - datesStation[index])
-            if delta > last_delta:
-                indexMatches.append(index-1)
-                match =True
-                #makes sure that when at the last index it stays there i.e. not index+=1
-            elif (index) == len(datesStation)-1:
-                indexMatches.append(index)
-                match =True
-            else:
-                #only continue if there was no match
-                index +=1    
-                last_delta = delta
-    return indexMatches
-        
-def get_number_of_hours_year(year): 
-    if (year % 4) == 0 and (year % 100 != 0 or year % 400 == 0):
-        days = 366
-    else:
-       days = 365
-    return days * 24
-    
 #map location unprocessed data
-mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS', RADIUS, 'KM')
+mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
 
 #maplocation processed data
-processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', RADIUS, 'KM_PROCESSED')
+processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
 
 # define VALUES
 YEARS = range(startYear, endYear)
-missingValue = 999.9 # the key used for missing data
 
-# load station ID current year
-datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
-file = open(datalocationStationID, 'rb')
-currentUsableStations = pickle.load(file)
+
+#Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
+#use these stations for preprocessing  
+usableStations = find_usable_stations(YEARS,mapLocation, maxDiff, missingValue,cut_off_percentage)
 
 tic = time.clock()
-#Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
-for year in YEARS:
-    print('Determining useless stations for year: ', year)
-    
-    # get path current year
-    yearString = str(year)
-    dataLocation = os.path.join(mapLocation, yearString + '.pickle')
-
-    # load data current year
-    file = open(dataLocation, 'rb')
-    data_year = pickle.load(file)
-    unusableStations = find_stations_unusable_temperatures(data_year, currentUsableStations, cut_off_percentage)
-    
-    for ID in unusableStations:
-        index = currentUsableStations.index(ID)    
-        currentUsableStations.pop(index) #deletes stations
-  #use these stations for preprocessing  
-usableStations = currentUsableStations
 
 toc = time.clock()
 print(round(toc-tic,2),'s: filtered stations')
@@ -109,26 +63,14 @@ for year in YEARS:
     
     #loop over stations
     for ID in usableStations:
-        # print('Processing station:', ID,'...')
-        
         # get keys from data
         currentKeys = list(data_year[ID].keys())
         data_processed[ID] = dict.fromkeys(currentKeys, [])
         #get datetime list from station
-        datesMeasurement = data_year[ID]['datetime']
   
         tic = time.clock()
-        indexMatches = find_matched_indexes(dateList,datesMeasurement)
+        data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue)
         toc = time.clock()
-        # print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
-
-        #store in new dictionary
-        for key in currentKeys:
-            if key == 'datetime':
-                data_processed[ID][key] = dateList
-            else:
-                data_processed[ID][key] = [ data_year[ID][key][index] for index in indexMatches ]
-
         #have to assign dummy value otherwise deleted key gets printed
     #SAVE DICTIONARIES
     if not os.path.exists(processedFilesLocation):
