@@ -4,9 +4,9 @@ import random
 import numpy as np
 
 
-def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_size=3, seq_len_train=7,
+def generate_batch(data_dir: str, filenames: [str],station_id_pred, batches_per_file=20, batch_size=3, seq_len_train=7,
                    features_train=None,
-                   seq_len_pred=7, station_id_pred=0, features_pred=None, t_max=365):
+                   seq_len_pred=7, features_pred=None, t_max=365):
     """
     Generator to load data batch-wise. Formats data to matrix that is fed to the neural network.
     X contains the source Y contains the target.
@@ -37,10 +37,6 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
         filename = random.choice(filenames)
         file_content = pickle.load(open(data_dir + filename + '.pickle', 'rb'))
         n_stations = len(file_content)
-
-        if station_id_pred is None:
-            # TODO maybe replace this with the station that is closest to delft
-            station_id_pred = list(file_content.keys())[0]
 
         for _ in range(batches_per_file):
             # Create tensors to store data + labels
@@ -75,3 +71,4 @@ def generate_batch(data_dir: str, filenames: [str], batches_per_file=20, batch_s
             x_batch = np.reshape(x_batch, (batch_size, seq_len_train, (n_stations-1) * len(features_train)))
             y_batch = np.reshape(y_batch, (batch_size, seq_len_pred))
             yield x_batch, y_batch
+

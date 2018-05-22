@@ -18,13 +18,13 @@ def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_l
 
 def basic_lstm(batch_size=8, n_features=1, n_stations=21):
     """
-    Creates a model with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
     :param batch_size: Size of one batch
     :param n_features: Number of features per station
     :param n_stations: Number of stations
     :param seq_len_pred: Sequence length to predict
-    :return: model
+    :return: training
     """
     seq_len_train = 7 * 24
     seq_len_pred = 6

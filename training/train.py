@@ -1,25 +1,28 @@
 import argparse
+import pickle
+import random
 import sys
 
-from model.normalization import estimate_stats, normalize_generator
-from model.preprocess_generators import preprocess_generators
+from training.normalization import estimate_stats, normalize_generator
+from training.preprocess_generators import preprocess_generators
+from training.utils import find_closest_station
 
 sys.path.extend('../')
 from pprint import pprint
 
-from file_utils import create_dirs, save_file
-from model.Training import Training
-from model.batch_generator import generate_batch
-from model.models import models
+from file_utils import create_dirs, save_file, load_file
+from training.Training import Training
+from training.batch_generator import generate_batch
+from training.models import models
 
 """
 Script to start a training. 
 
 It will create a directory in out/log_dir and save 
-the trained model [model.h5], a summary of the model/training configuration [summary.txt]
+the trained training [training.h5], a summary of the training/training configuration [summary.txt]
 and a summary of the training (loss per epoch) [log.csv].
 
-It will also create a tensorboard logfile that enables visualization of the model graph
+It will also create a tensorboard logfile that enables visualization of the training graph
 and training procedure with tensorboard. To visualize type:
  'python -m tensorboard.main --logdir=<Path-to-log_dir>'
 
@@ -29,12 +32,12 @@ Run this script from terminal with :
 batch_size = 8
 n_samples = None
 log_dir = '../out/basic_lstm/'
-data_dir = '../data/RADIUS70KM_PROCESSED/'
+data_dir = '../data/RADIUS500KM/'
 model_name = 'basic_lstm'
 station_id_pred = None
 n_stations = 5
-filenames_train = ['2015', '2016', '2017']
-filenames_valid = ['2017']
+filenames_train = [str(year) for year in range(2000, 2012)]
+filenames_valid = ['2013']
 
 ENTRIES_PER_FILE = 365 * 24
 
@@ -42,7 +45,7 @@ ENTRIES_PER_FILE = 365 * 24
 Overwrite parameters when run from command line
 """
 argparser = argparse.ArgumentParser()
-argparser.add_argument('--model_name', help='Name of the model to train: ' + str([str(k) for k in models.keys()]),
+argparser.add_argument('--model_name', help='Name of the training to train: ' + str([str(k) for k in models.keys()]),
                        default=model_name)
 argparser.add_argument('--log_dir', help='Path to store training output', default=log_dir)
 argparser.add_argument('--data_dir', help='Path to read data files', default=data_dir)
@@ -57,7 +60,7 @@ model_name = args.model_name
 n_samples = args.n_samples
 
 if n_samples is None:
-    n_samples = int(len(filenames_train) * ENTRIES_PER_FILE / 7*24)
+    n_samples = int(len(filenames_train) * ENTRIES_PER_FILE / 7 * 24)
 
 if not log_dir.endswith('/'):
     log_dir += '/'
@@ -68,15 +71,24 @@ if not data_dir.endswith('/'):
 Create Model
 """
 model = models[model_name](n_stations=n_stations, batch_size=batch_size)
-print('Training model: ', model_name)
+print('Training training: ', model_name)
 print('Storing files at: ', log_dir)
 print('Reading data from: ', data_dir)
 
 create_dirs([log_dir])
 
 """
+Find station to predict for
+"""
+position = (39.7392, -104.99903)#lat,lon
+content = pickle.load(open(data_dir + random.choice(filenames_train) + '.pickle', 'rb'))
+station_id_pred, distance = find_closest_station(content, position)
+print("Desired location: {}, found closest station to be {} at distance {}".format(position, station_id_pred, distance))
+
+"""
 Create dataset generators
 """
+
 train_generator = generate_batch(data_dir=data_dir,
                                  filenames=filenames_train,
                                  batch_size=batch_size,
@@ -114,7 +126,7 @@ Configure Training
 """
 model.compile(optimizer='Adam', loss='mean_squared_error')
 training = Training(model=model,
-                    out_file='model.h5',
+                    out_file='training.h5',
                     batch_size=batch_size,
                     train_gen=train_generator,
                     valid_gen=valid_generator,
