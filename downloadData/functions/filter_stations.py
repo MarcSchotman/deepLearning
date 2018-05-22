@@ -165,7 +165,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         # easiest to only get first four numbers by converting to string, bit of a hack...
         yearStart = int(str(minStartDate)[:4])
         yearEnd = int(str(minEndDate)[:4])
-        years = list(range(yearStart, yearEnd + 1))
+        years = list(range(yearStart, yearEnd))
 
         # get the IDs of stations which have been active in any of the selected years
         stations = get_active_station_ids(years)
