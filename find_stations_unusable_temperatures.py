@@ -16,7 +16,9 @@ def find_stations_unusable_temperatures(data, stationIDs, cut_off_percentage):
         percentage_missing = (missingData/len(temperature))*100
         
         if percentage_missing> cut_off_percentage: 
+            print('Unusable Station: ', ID, 'percentage of data missing: ', percentage_missing, '%')
             unUseableStations.append(ID)
+    
     return unUseableStations
 
 #import pickle

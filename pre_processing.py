@@ -7,9 +7,9 @@ Created on Tue May 15 09:37:28 2018
 
 
 #INPUTS
-startYear = 2015
+startYear = 2017
 endYear = 2018 #downloads UPTILL endyear so NOT 2018
-RADIUS = '70' #ASSSUMES DATA IN /deepLearning/data
+RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
 cut_off_percentage = 3 #ommits station with missing data > 3%
 import numpy as np
 import pickle
@@ -18,6 +18,8 @@ import datetime
 import pytz
 from find_stations_unusable_temperatures import find_stations_unusable_temperatures
 import time
+
+
 
 def find_matched_indexes(dateList, datesStation):
     index = 1 #NEEDS TO BE 1
@@ -49,35 +51,35 @@ def get_number_of_hours_year(year):
     return days * 24
     
 #map location unprocessed data
-mapLocation = os.getcwd() + '\\data\\' + 'RADIUS' + RADIUS + 'KM'
+mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
 
 #maplocation processed data
-processedFilesLocation = os.getcwd() + '\\data\\RADIUS' +RADIUS + 'KM_PROCESSED'
+processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
 
 # define VALUES
 YEARS = range(startYear, endYear)
-missingValue = 999.9
+missingValue = 999.9 # the key used for missing data
 
 # load station ID current year
-datalocationStationID= mapLocation +'\\STATION_ID.pickle'
+datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
 file = open(datalocationStationID, 'rb')
 currentUsableStations = pickle.load(file)
 
 tic = time.clock()
 #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
 for year in YEARS:
+    print('Determining useless stations for year: ', year)
+    
     # get path current year
     yearString = str(year)
-    dataLocation = mapLocation + '\\' + yearString + '.pickle'
+    dataLocation = os.path.join(mapLocation, yearString + '.pickle')
 
     # load data current year
     file = open(dataLocation, 'rb')
     data_year = pickle.load(file)
-    
     unusableStations = find_stations_unusable_temperatures(data_year, currentUsableStations, cut_off_percentage)
     
     for ID in unusableStations:
-        print('Unusable Station: ', ID)
         index = currentUsableStations.index(ID)    
         currentUsableStations.pop(index) #deletes stations
   #use these stations for preprocessing  
@@ -94,7 +96,7 @@ for year in YEARS:
     
     #get path current year
     yearString = str(year)
-    dataLocation = mapLocation + '\\' + yearString + '.pickle'
+    dataLocation = os.path.join(mapLocation, yearString + '.pickle')
 
     #load data current year
     file = open(dataLocation, 'rb')
@@ -107,7 +109,7 @@ for year in YEARS:
     
     #loop over stations
     for ID in usableStations:
-        print('Processing station:', ID,'...')
+        # print('Processing station:', ID,'...')
         
         # get keys from data
         currentKeys = list(data_year[ID].keys())
@@ -118,12 +120,12 @@ for year in YEARS:
         tic = time.clock()
         indexMatches = find_matched_indexes(dateList,datesMeasurement)
         toc = time.clock()
-        print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
+        # print(round(toc-tic,2),'s: matched dates (', len(datesMeasurement),' in list)')
 
         #store in new dictionary
-        for key in currentKeys:        
+        for key in currentKeys:
             if key == 'datetime':
-                data_processed[ID][key] = dateList            
+                data_processed[ID][key] = dateList
             else:
                 data_processed[ID][key] = [ data_year[ID][key][index] for index in indexMatches ]
 
@@ -132,9 +134,9 @@ for year in YEARS:
     if not os.path.exists(processedFilesLocation):
         os.makedirs(processedFilesLocation)
     
-    with open(processedFilesLocation + '\\' + str(year) + '.pickle', 'wb') as handle:
+    with open(os.path.join(processedFilesLocation, str(year) + '.pickle'), 'wb') as handle:
         pickle.dump(data_processed, handle, protocol=pickle.HIGHEST_PROTOCOL)
 #save station ID list          
-with open(processedFilesLocation + '\\STATION_ID.pickle', 'wb') as handle:
+with open(os.path.join(processedFilesLocation, 'STATION_ID.pickle'), 'wb') as handle:
     pickle.dump(usableStations, handle, protocol=pickle.HIGHEST_PROTOCOL)
 print('PROCESSING COMPLETED')  
