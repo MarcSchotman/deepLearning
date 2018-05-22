@@ -11,13 +11,14 @@ import os.path
 def plot_stations(stations, lattitudeCenter, longitudeCenter, radius):
     imagePath = os.path.join('fig', 'basemap')
     
-    m = Basemap(width=5000 * radius, height=5000 * radius, projection='lcc', 
+    m = Basemap(width=5000 * radius, height=5000 * radius, projection='lcc', # hammer
                 resolution='i', lat_1=lattitudeCenter - 20, 
                 lat_2=lattitudeCenter + 20, lat_0=lattitudeCenter, 
                 lon_0=longitudeCenter)
     # m = Basemap(projection='hammer',lon_0=0, lon_1=-20.,lon_2=20 ,resolution='i')  #width=12000000, height=9000000, 
     #(projection = 'merc', llcrnrlat=30, urcrnrlat=90, llcrnrlon=-30, urcrnrlon=-35)
     
+    m.drawstates()
     m.drawcoastlines()
     m.fillcontinents (color='lightgray', lake_color='lightblue')
     # m.drawparallels(np.arange(-90.,91.,30.))
@@ -31,4 +32,4 @@ def plot_stations(stations, lattitudeCenter, longitudeCenter, radius):
     plt.title('Selected stations')
     plt.show()    
     
-    plt.savefig(imagePath + '.eps')
+    plt.savefig(imagePath + '.eps', bbox_inches='tight')

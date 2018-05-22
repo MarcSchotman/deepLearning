@@ -13,7 +13,7 @@ import numpy as np
 
 #dataLocation = os.getcwd() + '\\data\\RADIUS40KM\\2017.pickle'
 #maplocation processed data
-RADIUS = 100
+RADIUS = 200
 missingValue = 999.9 # the key used for missing data
 
 processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
@@ -65,4 +65,4 @@ for ID in stationIDs:
         pltcount += 1
     count +=1
 plt.show()
-plt.savefig(imageName + '.eps')
+plt.savefig(imageName + '.eps', bbox_inches='tight')
