@@ -7,9 +7,9 @@ Created on Tue May 15 09:37:28 2018
 
 
 #INPUTS
-startYear = 2015
+startYear = 2017
 endYear = 2018 #downloads UPTILL endyear so NOT 2018
-RADIUS = '70' #ASSSUMES DATA IN /deepLearning/data
+RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
 cut_off_percentage = 3 #ommits station with missing data > 3%
 import numpy as np
 import pickle
@@ -51,10 +51,10 @@ def get_number_of_hours_year(year):
     return days * 24
     
 #map location unprocessed data
-mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS', RADIUS, 'KM')
+mapLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM')
 
 #maplocation processed data
-processedFilesLocation = os.path.join(os.getcwd() + 'data', 'RADIUS', RADIUS, 'KM_PROCESSED')
+processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
 
 # define VALUES
 YEARS = range(startYear, endYear)
