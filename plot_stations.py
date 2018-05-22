@@ -32,4 +32,4 @@ def plot_stations(stations, lattitudeCenter, longitudeCenter, radius):
     plt.title('Selected stations')
     plt.show()    
     
-    plt.savefig(imagePath + '.eps')
+    plt.savefig(imagePath + '.eps', bbox_inches='tight')
