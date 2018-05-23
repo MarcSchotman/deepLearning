@@ -80,14 +80,15 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     print('PROCESSING COMPLETED')  
     return 0
 
-#import datetime
+import datetime
 ##INPUTS
-#startYear = 2017
-#endYear = 2018 #downloads UPTILL endyear so NOT 2018
-#RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
-#cut_off_percentage = 3 #ommits station with missing data > 3%
-#maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
-#missingValue = 999.9 # the key used for missing data
-#hoursADay = 24 #how many hours a day to we want to us
-#
-#pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay)
+if __name__ == '__main__':
+    startYear = 2015
+    endYear = 2018 #downloads UPTILL endyear so NOT 2018
+    RADIUS = '200' #ASSSUMES DATA IN /deepLearning/data
+    cut_off_percentage = 3 #ommits station with missing data > 3%
+    maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
+    missingValue = 999.9 # the key used for missing data
+    hoursADay = 24 #how many hours a day to we want to us
+
+    pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay)
