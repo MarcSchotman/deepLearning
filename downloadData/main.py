@@ -11,14 +11,14 @@ from pre_processing import pre_processing
 
 
 #INPUTS
-lattitudeCenter = 52.0116 #lattitude and longitude Delft
-longitudeCenter = 4.3571
-startYear = 2017
+lattitudeCenter = 39.7392 # Denver
+longitudeCenter = -104.9903
+startYear = 2015
 endYear = 2018 #Will NOT download 2018
-r_list = [50] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
+r_list = [200] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
 
 #DOWNLOAD DATA
-#data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter)
+data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter)
 
 
 #INPUTS

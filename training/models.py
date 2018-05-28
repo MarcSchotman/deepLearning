@@ -33,11 +33,11 @@ def basic_lstm(batch_size=8, n_features=1, n_stations=21):
 
     # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
     # from the high resolution to a per day representation.
-    dense1 = Dense(units=7, activation="relu")(input)
-    dense2 = Dense(units=7, activation="relu")(dense1)
+    dense1 = Dense(units=14, activation="elu")(input)
+    dense2 = Dense(units=14, activation="elu")(dense1)
     # Lstm keeps track of time dependencies
     lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
-    dense3 = Dense(units=3, activation="relu")(lstm)
+    dense3 = Dense(units=6, activation="tanh")(lstm)
     out = Dense(units=seq_len_pred, activation="linear")(dense3)
 
     model = Model(input, out)

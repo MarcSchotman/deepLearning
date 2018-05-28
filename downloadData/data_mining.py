@@ -94,6 +94,7 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
                     except Exception as ex:
                         print('ERROR: ',ex)
                         print('STOPPING DOWNLOAD.')
+                        break
             
             #add previously downloaded data to the current data_year
             if current_index_r != 0:
