@@ -13,8 +13,11 @@ def find_closest_station(entries, position: (float, float)):
 
     for station_id in entries.keys():
 
-        dist = vincenty((entries[station_id]['latitude'][0], entries[station_id]['longitude'][0]), position).km
-        if dist < min_dist:
-            min_dist = dist
-            station_id_closest = station_id
+        try :
+            dist = vincenty((entries[station_id]['latitude'][0], entries[station_id]['longitude'][0]), position).km
+            if dist < min_dist:
+                min_dist = dist
+                station_id_closest = station_id
+        except ValueError:
+            print("ValueError: {}".format((entries[station_id]['latitude'][0], entries[station_id]['longitude'][0])))
     return station_id_closest, min_dist

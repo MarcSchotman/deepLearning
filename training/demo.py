@@ -13,6 +13,7 @@ sys.path.extend(['../'])
 from training.batch_generator import generate_batch
 from training.normalization import normalize
 from training.preprocess_generators import mean_day_night
+from training.train import ENTRIES_PER_FILE, position
 from training.utils import find_closest_station
 
 model_file = '../out/basic_lstm/training.h5'
@@ -61,14 +62,14 @@ while True:
     y_predicted = (y_predicted_normed + mean) * std
     for i_batch in range(batch_size):
         plt.figure()
-        plt.plot(np.arange(0, seq_len_train), x_cleaned[i_batch, :, list(file_cont.keys()).index(station_id_pred)], 'gx--')
+        plt.plot(np.arange(0, 24*7), x_cleaned[i_batch, :, list(file_cont.keys()).index(station_id_pred)], 'gx--')
         plt.title("Past Temperature")
         plt.xlabel('Hour')
         plt.ylabel('Temperature')
         plt.figure()
-        plt.plot(np.arange(0, seq_len_pred_final), y_predicted[i_batch, :], 'bx--')
-        plt.plot(np.arange(0, seq_len_pred_final), y_true[i_batch, :], 'rx--')
-        plt.xticks(np.arange(0, seq_len_pred_final),['Night 1', 'Day 1', 'Night 2', 'Day 2', 'Night 3', 'Day 3'])
+        plt.plot(np.arange(0, 3 * 2), y_predicted[i_batch, :], 'bx--')
+        plt.plot(np.arange(0, 3 * 2), y_true[i_batch, :], 'rx--')
+        plt.xticks(np.arange(0, 3 * 2),['Night 1', 'Day 1', 'Night 2', 'Day 2', 'Night 3', 'Day 3'])
         plt.xlabel('Mean Night/Mean Day')
         plt.ylabel('Temperature')
         plt.legend(['Predicted Temperature', 'True Temperature'])

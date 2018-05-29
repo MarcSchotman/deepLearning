@@ -11,19 +11,18 @@ import os.path
 import math
 import numpy as np
 
-#dataLocation = os.getcwd() + '\\data\\RADIUS40KM\\2017.pickle'
 #maplocation processed data
 RADIUS = 200
 missingValue = 999.9 # the key used for missing data
 
-processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
+processedFilesLocation = os.path.join(os.getcwd(), '../data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
 imageName = os.path.join('fig', 'temperature')
 
-dataLocation = processedFilesLocation + '\\2017.pickle'
+dataLocation = processedFilesLocation + '/2017.pickle'
 file = open(dataLocation, 'rb')
 data = pickle.load(file)
 
-datalocationStationID= processedFilesLocation +'\\STATION_ID.pickle'
+datalocationStationID= processedFilesLocation +'/STATION_ID.pickle'
 file = open(datalocationStationID, 'rb')
 stationIDs = pickle.load(file)
 

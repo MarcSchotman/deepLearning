@@ -2,9 +2,11 @@ import argparse
 import pickle
 import random
 import sys
-sys.path.extend(['../'])
 
 from downloadData.functions.file_utils import create_dirs, save_file
+
+sys.path.extend(['../'])
+
 from training.normalization import estimate_stats, normalize_generator
 from training.preprocess_generators import preprocess_generators
 from training.utils import find_closest_station
@@ -33,7 +35,7 @@ batch_size = 8
 n_samples = None
 log_dir = '../out/basic_lstm/'
 data_dir = '../data/RADIUS200KM_PROCESSED/'
-model_name = 'basic_lstm'
+model_name = 'basic_gru'
 station_id_pred = None
 filenames_train = ['2015', '2016']
 filenames_valid = ['2017']
