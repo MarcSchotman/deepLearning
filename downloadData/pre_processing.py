@@ -4,14 +4,13 @@ Created on Tue May 15 09:37:28 2018
 
 @author: Taeke
 """
-
+import datetime
 
 
 def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay):
     import numpy as np
     import pickle
     import os.path
-    import time
     import sys
     
     #location of functions
@@ -35,17 +34,15 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     
     #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
     #use these stations for preprocessing  
-    tic = time.clock()
+
     usableStations = find_usable_stations(YEARS,mapLocation, hoursADay, maxDiff, missingValue,cut_off_percentage)
-    print("Stations left:" ,len(usableStations))
-    toc = time.clock()
     
     #puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
     for year in YEARS:
         data_processed = {}
         data_processed = dict.fromkeys(list(usableStations), {})
         
-        print('YEAR: ', year,'...')
+        print('PROCESSED YEAR: ', year,'...')
         
         #get path current year
         yearString = str(year)
@@ -64,9 +61,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
             #get desired dateList
             dateList = desired_date_list(year, hoursADay)
       
-            tic = time.clock()
             data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue)
-            toc = time.clock()
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
         if not os.path.exists(processedFilesLocation):
@@ -80,15 +75,14 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     print('PROCESSING COMPLETED')  
     return 0
 
-import datetime
+#import datetime
 ##INPUTS
-if __name__ == '__main__':
-    startYear = 2015
-    endYear = 2018 #downloads UPTILL endyear so NOT 2018
-    RADIUS = '200' #ASSSUMES DATA IN /deepLearning/data
-    cut_off_percentage = 3 #ommits station with missing data > 3%
-    maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
-    missingValue = 999.9 # the key used for missing data
-    hoursADay = 24 #how many hours a day to we want to us
-
-    pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay)
+#startYear = 2017
+#endYear = 2018 #downloads UPTILL endyear so NOT 2018
+#RADIUS = '100' #ASSSUMES DATA IN /deepLearning/data
+#cut_off_percentage = 3 #ommits station with missing data > 3%
+#maxDiff = datetime.timedelta(.5) #Maximum difference between matched dates
+#missingValue = 999.9 # the key used for missing data
+#hoursADay = 24 #how many hours a day to we want to us
+#
+#pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay)

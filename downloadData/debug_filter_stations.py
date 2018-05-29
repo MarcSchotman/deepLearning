@@ -31,7 +31,7 @@ endYear = str(endYear)
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
 
-stations, delID = filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
+stations = filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
 
 for USAF in stations['USAF']:
     if USAF == '720528':
