@@ -5,19 +5,24 @@ Created on Mon May 14 13:52:27 2018
 @author: Taeke
 """
 
-def find_stations_unusable_temperatures(data, stationIDs, cut_off_percentage):
+def filter_on_missing_values(data, stationIDs,key,missingValue, cut_off_percentage):
     import numpy as np
     #initilize array
     unUseableStations = []
+    print('Filtering: ', key)
     for ID in stationIDs:
         #get temperature and missing percentage
-        temperature = np.array(data[ID]['air_temperature'])       
-        missingData = sum(temperature ==999.9)
-        percentage_missing = (missingData/len(temperature))*100
+        stationData = data[ID][key]
+        print(len(stationData))
+        missingData = stationData.count(missingValue)
+        percentage_missing = (missingData/len(stationData))*100
         
-        if percentage_missing> cut_off_percentage: 
+        if key == 'air_temperature' and percentage_missing> cut_off_percentage: 
             print('Unusable Station: ', ID, 'percentage of data missing: ', percentage_missing, '%')
             unUseableStations.append(ID)
+        
+    print('Now at key: ', key, '. Missing percentage: ' , round(percentage_missing,2) )
+        
     
     return unUseableStations
 

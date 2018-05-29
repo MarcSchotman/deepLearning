@@ -4,11 +4,11 @@ Created on Tue May 22 10:38:34 2018
 
 @author: m_a_s
 """
-def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValue,cut_off_percentage):
+def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList, filterKeys,cut_off_percentage):
     
     import pickle
     from get_number_of_hours_year import get_number_of_hours_year
-    from find_stations_unusable_temperatures import find_stations_unusable_temperatures
+    from filter_on_missing_values import filter_on_missing_values
     from desired_date_list import desired_date_list
     import os.path
     from match_dates import match_dates
@@ -35,10 +35,14 @@ def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValue,cut_
         
         for ID in currentUsableStations:
             currentKeys = list(data_year[ID].keys())
-            data_year[ID] = match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue)
-            
-        unusableStations = find_stations_unusable_temperatures(data_year, currentUsableStations, cut_off_percentage)
+            data_year[ID] = match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
+        index = 0
         
+        for key in filterKeys:
+            missingValue = missingValueList[key]
+            unusableStations = filter_on_missing_values(data_year, currentUsableStations, key, missingValue, cut_off_percentage)
+            index = index+1
+            
         for ID in unusableStations:
             index = currentUsableStations.index(ID)    
             currentUsableStations.pop(index) #deletes stations

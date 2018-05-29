@@ -7,7 +7,7 @@ Created on Tue May 15 09:37:28 2018
 import datetime
 
 
-def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValue,hoursADay):
+def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValueList, filterKeys,hoursADay):
     import numpy as np
     import pickle
     import os.path
@@ -27,7 +27,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     mapLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM')
     
     #maplocation processed data
-    processedFilesLocation = os.path.join(os.getcwd(), 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
+    processedFilesLocation = os.path.join(mapLocation, 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
     
     # define VALUES
     YEARS = range(startYear, endYear)
@@ -35,7 +35,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
     #use these stations for preprocessing  
 
-    usableStations = find_usable_stations(YEARS,mapLocation, hoursADay, maxDiff, missingValue,cut_off_percentage)
+    usableStations = find_usable_stations(YEARS,mapLocation, hoursADay, maxDiff, missingValueList, filterKeys,cut_off_percentage)
     
     #puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
     for year in YEARS:
@@ -61,7 +61,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
             #get desired dateList
             dateList = desired_date_list(year, hoursADay)
       
-            data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue)
+            data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
         if not os.path.exists(processedFilesLocation):

@@ -9,8 +9,7 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
     import numpy as np
     import os
     import pickle
-    import sys
-    
+    import sys    
     #location of functions
     functionsLocation = os.path.join(os.getcwd(), 'functions')
     sys.path.insert(0, functionsLocation)
