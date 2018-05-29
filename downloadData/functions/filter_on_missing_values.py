@@ -9,11 +9,9 @@ def filter_on_missing_values(data, stationIDs,key,missingValue, cut_off_percenta
     import numpy as np
     #initilize array
     unUseableStations = []
-    print('Filtering: ', key)
     for ID in stationIDs:
         #get temperature and missing percentage
         stationData = data[ID][key]
-        print(len(stationData))
         missingData = stationData.count(missingValue)
         percentage_missing = (missingData/len(stationData))*100
         
@@ -21,22 +19,7 @@ def filter_on_missing_values(data, stationIDs,key,missingValue, cut_off_percenta
             print('Unusable Station: ', ID, 'percentage of data missing: ', percentage_missing, '%')
             unUseableStations.append(ID)
         
-    print('Now at key: ', key, '. Missing percentage: ' , round(percentage_missing,2) )
+    print(round(percentage_missing,2), '% missing of ' ,key,'...ONLY AIR_TEMPERATURE IS USED TO FILTER' )
         
     
     return unUseableStations
-
-#import pickle
-##dataLocation = os.getcwd() + '\\data\\RADIUS40KM\\2017.pickle'
-#mapLocation = 'C:\\Users\\m_a_s\\Desktop\\data\\RADIUS50KM'
-#
-#dataLocation = mapLocation + '\\2017.pickle'
-#file = open(dataLocation, 'rb')
-#data = pickle.load(file)
-#
-#datalocationStationID= mapLocation +'\\STATION_ID.pickle'
-#file = open(datalocationStationID, 'rb')
-#stationIDs = pickle.load(file)
-#
-#useableStations = find_stations_useable_temperatures(data,stationIDs,2)
-#print(useableStations)
