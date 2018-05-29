@@ -141,9 +141,6 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
                 # remove year.gz from stationYears ID, and store stationYears ID in dict
                 curcentStationID = re.sub('-' + str(year) +'.gz', '', curcentStationID)
                 
-                # split at -
-                # curcentStationID = curcentStationID.split('-')
-                
                 # append
                 stations[year].append(curcentStationID)
                 
@@ -182,21 +179,17 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         for year in years:
             print('Determine inactive station from Year: ' + str(year))
             delCount = 0
+            
+            # print('Length activeeachYear:', len(activeEachYear))
             # loop over active each year
-            print('Length activeeachYear:', len(activeEachYear))
             for ID in activeEachYear:
-                if ID == '720528-03064' or ID == '720528-99999':
-                        print('Now at :',ID)
-                # print(len(activeEachYear))
+
+                # keep the station 
                 if (ID in stations[year]):
-                    if ID == '720528-03064' or ID == '720528-99999':
-                        print('added it', ID)
                     remaining.append(ID)
                 if not(ID in stations[year]):
-                    
-                    print('Deleted it', ID)
                     delID.append(ID)
-#                    delCount = delCount + 1
+                    delCount = delCount + 1
 #                    
 #                    activeEachYear.remove(ID)
             activeEachYear = remaining.copy()
@@ -204,25 +197,19 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
         # get Iindexes from stations we want to keep
         indexes = []
         delCount = 0
-        
-        # activeEachYear = activeEachYear.split('-')
-        
+
+        # store indexes of deleted stations
         for ID in activeEachYear:
-            
-            #currentStation = [stationsIn[keys[0]][i], stationsIn[keys[1]][i]]4
             splitID = ID.split('-')
             currentUSAF = splitID[0]
             index = stationsIn[keys[0]].index(currentUSAF)
             
             indexes.append(index)
-            
-               
-        print(' Deleted ' + str(delCount) + ' inactive station(s)')
         
         for key in keys:
             stationsOut[key] = np.take(stationsIn[key],indexes)
             
-        return stationsOut, delID
+        return stationsOut
     
     ## start of script
     isd_history_file = open('isd-history.txt', "r")
@@ -260,7 +247,7 @@ def filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeC
     #stations = [USAF WBAN LAT LON ELEV BEGIN_DATE END_DATE]
     stations = filter_station_date(stations,keys,minStartDate,minEndDate)
     stations = filter_station_radius(stations,keys,longitudeCenter,lattitudeCenter,r_max)
-    stations, delID = filter_station_activity(stations,keys,minStartDate,minEndDate)
+    stations = filter_station_activity(stations,keys,minStartDate,minEndDate)
     
-    return stations, delID
+    return stations
 
