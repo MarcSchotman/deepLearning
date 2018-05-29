@@ -4,7 +4,7 @@ Created on Tue May 22 10:43:32 2018
 
 @author: m_a_s
 """
-def match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue):
+def match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList):
     #checks dates and fills in missing value if date difference is larger then  maxDiff
     
     index = 1 #NEEDS TO BE 1
@@ -38,7 +38,7 @@ def match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValue):
             if key == 'datetime':
                 outList[key] = dateList
             elif missing and key !='latitude' and key !='longitude' and key != 'elevation' :
-                outList[key].append(missingValue)
+                outList[key].append(missingValueList[key])
             else:                    
                 outList[key].append(data_year[ID][key][index])
     return outList
