@@ -36,12 +36,11 @@ def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList,
         for ID in currentUsableStations:
             currentKeys = list(data_year[ID].keys())
             data_year[ID] = match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
-        index = 0
+        
         
         for key in filterKeys:
             missingValue = missingValueList[key]
             unusableStations = filter_on_missing_values(data_year, currentUsableStations, key, missingValue, cut_off_percentage)
-            index = index+1
             
         for ID in unusableStations:
             index = currentUsableStations.index(ID)    
