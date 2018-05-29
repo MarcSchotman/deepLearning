@@ -7,8 +7,8 @@ Created on Tue May 22 14:42:28 2018
 a = [['1','2'],['3','4']]
 b = ['1','3']
 
-if not (b in a):
-    print('no')
+if (b in a):
+    print('yes')
 
 #INPUTS
 lattitudeCenter = 39.74
@@ -31,7 +31,7 @@ endYear = str(endYear)
 minStartDate = int(startYear+'0000') #YearMonthDay
 minEndDate = int(endYear+'0000')  #YearMonthDay
 
-stations = filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
+stations, delID = filter_stations(minStartDate, minEndDate, r_max, longitudeCenter, lattitudeCenter)
 
 for USAF in stations['USAF']:
     if USAF == '720528':
