@@ -4,7 +4,7 @@ Created on Tue May 22 10:38:34 2018
 
 @author: m_a_s
 """
-def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList, filterKeys,cut_off_percentage):
+def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList, missingValueKeys, filterKeys,cut_off_percentage):
     
     import pickle
     from get_number_of_hours_year import get_number_of_hours_year
@@ -16,7 +16,7 @@ def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList,
     datalocationStationID= os.path.join(mapLocation, 'STATION_ID.pickle')
     file = open(datalocationStationID, 'rb')
     currentUsableStations = pickle.load(file)
-
+    totalDeleted = 0;
     for year in YEARS:
         print('Determining useless stations for year: ', year)
         
@@ -40,10 +40,13 @@ def find_usable_stations(YEARS,mapLocation,hoursADay, maxDiff, missingValueList,
         
         for key in filterKeys:
             missingValue = missingValueList[key]
-            unusableStations = filter_on_missing_values(data_year, currentUsableStations, key, missingValue, cut_off_percentage)
+            unusableStations = filter_on_missing_values(data_year, currentUsableStations, key, missingValue, filterKeys, cut_off_percentage)
             
-        for ID in unusableStations:
-            index = currentUsableStations.index(ID)    
-            currentUsableStations.pop(index) #deletes stations
-    print("Total deleted stations: ", len(unusableStations))
+            totalDeleted = totalDeleted + len(unusableStations)
+            for ID in unusableStations:
+                index = currentUsableStations.index(ID)    
+                currentUsableStations.pop(index) #deletes stations
+        
+    print("Total deleted stations: ", totalDeleted)
+            
     return currentUsableStations            

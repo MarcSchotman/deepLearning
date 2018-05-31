@@ -4,7 +4,7 @@ Created on Tue May 15 09:37:28 2018
 
 @author: Taeke
 """
-def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValueList, filterKeys,measurementsADay):
+def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValueList, missingValueKeys,filterKeys,measurementsADay):
     import numpy as np
     import pickle
     import os.path
@@ -31,8 +31,8 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     
     #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
     #use these stations for preprocessing  
-
-    usableStations = find_usable_stations(YEARS,mapLocation, measurementsADay, maxDiff, missingValueList, filterKeys,cut_off_percentage)
+    print("DELETING stations with more then ", cut_off_percentage, "% of missing data for keys in filterKeys...")
+    usableStations = find_usable_stations(YEARS,mapLocation, measurementsADay, maxDiff, missingValueList, missingValueKeys,filterKeys, cut_off_percentage)
     
     #puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
     for year in YEARS:
