@@ -3,7 +3,7 @@ import pickle
 import random
 import sys
 
-from downloadData.functions.file_utils import create_dirs, save_file
+#from downloadData.functions.file_utils import create_dirs, save_file
 
 sys.path.extend(['../'])
 
@@ -34,7 +34,7 @@ Run this script from terminal with :
 batch_size = 8
 n_samples = None
 log_dir = '../out/basic_lstm/'
-data_dir = '../data/RADIUS200KM_PROCESSED/'
+data_dir = '../data/RADIUS100KM_PROCESSED/'
 model_name = 'basic_gru'
 station_id_pred = None
 filenames_train = ['2015', '2016']
@@ -109,8 +109,8 @@ if __name__ == '__main__':
                                      seq_len_train=7 * 24)
 
     # We estimate mean and stddev from the trainingset to normalize our data
-    # mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
-    mean, std = 5.817838704067266 , 3.340678021019071
+    mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
+    #mean, std = 5.817838704067266 , 3.340678021019071
     # We feed the train generators through normalize generators to normalize each batch before
     # feeding it in the network. This also gets rid of missing values
     train_generator = normalize_generator(train_generator, mean, std)

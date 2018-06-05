@@ -24,7 +24,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     mapLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM')
     
     #maplocation processed data
-    processedFilesLocation = os.path.join(mapLocation, 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
+    processedFilesLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
     
     # define VALUES
     YEARS = range(startYear, endYear)
@@ -66,9 +66,11 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
         
         with open(os.path.join(processedFilesLocation, str(year) + '.pickle'), 'wb') as handle:
             pickle.dump(data_processed, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            print('Saving ', year, ' at ', os.path.join(processedFilesLocation, str(year) + '.pickle'))
     #save station ID list          
     with open(os.path.join(processedFilesLocation, 'STATION_ID.pickle'), 'wb') as handle:
         pickle.dump(usableStations, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
     print('PROCESSING COMPLETED')  
     return 0
 

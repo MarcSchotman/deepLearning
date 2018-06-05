@@ -16,7 +16,7 @@ def filter_on_missing_values(data, stationIDs,key, missingValue,filterKeys, cut_
         percentage_missing = (missingData/len(stationData))*100
         
         if (key in filterKeys) and percentage_missing> cut_off_percentage: 
-            print('Unusable Station: ', ID, 'percentage of ',key,' missing: ', round(percentage_missing,2), '%')
+            print('UNUSABLE: ', ID, ', ',key,' : ', round(percentage_missing,2), '% missing...')
             unUseableStations.append(ID)
         
         

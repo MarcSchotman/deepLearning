@@ -30,7 +30,7 @@ data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter)
 #INPUTS
 cut_off_percentage = 5 #ommits station with missing data > 3%
 maxDiff = datetime.timedelta(.5)#= 12 hours, Maximum difference between matched dates
-measurementsADay = 24 #how many measurements a day to we want to us
+measurementsADay = 24 #how many measurements a day to we want to use
 
 keys = ['datetime','air_temperature','sea_level_pressure','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
 missingValueKeys= ['air_temperature','sea_level_pressure','humidity','dew-point','wind_speed','wind_direction','wind_observation_direction_type']
