@@ -9,7 +9,7 @@ GOOGLE CLOUD FOR DUMMIES
 
 
 
-==WHAT TO DO==
+==HOW TO SETUP==
 
 Follow guide, hoever note that the folloing steps are already done
 - "Create and Configure Your Account": you already have an account, it is in your gmail
@@ -19,8 +19,23 @@ Follow guide, hoever note that the folloing steps are already done
 Thus start at: "Connect to Your Virtual Instance"
 Once you have downaloded Google Cloud SDK, just type:
 
-gcloud compute ssh --zone=europe-west4-a cs231-boot
+	gcloud compute ssh --zone=europe-west4-a cs231-boot
 
+
+==HOW TO RUN CODE==
+go to:
+
+	USER@cs231-boot:/home/deepLearning
+
+
+Now you can run any code with:
+	
+	python file.py
+
+
+Edit files with:
+
+	nano file.py
 
 ==EXTRA==
 
