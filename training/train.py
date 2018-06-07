@@ -3,10 +3,10 @@ import pickle
 import random
 import sys
 
-#from downloadData.functions.file_utils import create_dirs, save_file
 
 sys.path.extend(['../'])
 
+from downloadData.functions.file_utils import create_dirs, save_file
 from training.normalization import estimate_stats, normalize_generator
 from training.preprocess_generators import preprocess_generators
 from training.utils import find_closest_station
