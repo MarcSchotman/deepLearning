@@ -4,7 +4,7 @@ Created on Tue May 15 09:37:28 2018
 
 @author: Taeke
 """
-def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValueList, filterKeys,measurementsADay):
+def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, generalMissingValue,missingValueList, missingValueKeys,filterKeys,measurementsADay):
     import numpy as np
     import pickle
     import os.path
@@ -17,6 +17,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     from find_usable_stations import find_usable_stations
     from match_dates import match_dates
     from desired_date_list import desired_date_list
+    from replace_missing_values import replace_missing_values
     
     
     #map location unprocessed data
@@ -24,15 +25,15 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     mapLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM')
     
     #maplocation processed data
-    processedFilesLocation = os.path.join(mapLocation, 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
+    processedFilesLocation = os.path.join(deepLearningPath, 'data', 'RADIUS' + str(RADIUS) + 'KM_PROCESSED')
     
     # define VALUES
     YEARS = range(startYear, endYear)
     
     #Determine which stations are usable during entire period i.e. check missing percentage < cut off percentage
     #use these stations for preprocessing  
-
-    usableStations = find_usable_stations(YEARS,mapLocation, measurementsADay, maxDiff, missingValueList, filterKeys,cut_off_percentage)
+    print("DELETING stations with more then ", cut_off_percentage, "% of missing data for keys in filterKeys...")
+    usableStations = find_usable_stations(YEARS,mapLocation, measurementsADay, maxDiff, missingValueList, missingValueKeys,filterKeys, cut_off_percentage)
     
     #puts all the data of the usable stations in the desired format, i.e. hourly for 365 days a year.
     for year in YEARS:
@@ -59,6 +60,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
             dateList = desired_date_list(year, measurementsADay)
       
             data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
+            data_processed[ID] = replace_missing_values(data_processed[ID],filterKeys, generalMissingValue,missingValueList)
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
         if not os.path.exists(processedFilesLocation):
@@ -66,9 +68,11 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
         
         with open(os.path.join(processedFilesLocation, str(year) + '.pickle'), 'wb') as handle:
             pickle.dump(data_processed, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            print('Saving ', year, ' at ', os.path.join(processedFilesLocation, str(year) + '.pickle'))
     #save station ID list          
     with open(os.path.join(processedFilesLocation, 'STATION_ID.pickle'), 'wb') as handle:
         pickle.dump(usableStations, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
     print('PROCESSING COMPLETED')  
     return 0
 
