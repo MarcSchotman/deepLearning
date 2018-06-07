@@ -16,10 +16,10 @@ from training.preprocess_generators import mean_day_night
 from training.train import ENTRIES_PER_FILE, position
 from training.utils import find_closest_station
 
-model_file = '../out/basic_lstm/training.h5'
+model_file = '../out/lstm300/training.h5'
 model = load_model(model_file)
 batch_size = 8
-data_dir = '../data/RADIUS200KM_PROCESSED/'
+data_dir = '../data/RADIUS300KM_PROCESSED/'
 filenames_predict = ['2017']
 seq_len_train = 7*24
 seq_len_pred = 3*24
@@ -62,8 +62,13 @@ while True:
     y_predicted = (y_predicted_normed + mean) * std
     for i_batch in range(batch_size):
         plt.figure()
-        plt.plot(np.arange(0, 24*7), x_cleaned[i_batch, :, list(file_cont.keys()).index(station_id_pred)], 'gx--')
+        plt.plot(np.arange(0, 24*7), x[i_batch, :, list(file_cont.keys()).index(station_id_pred)], 'gx--')
         plt.title("Past Temperature")
+        plt.xlabel('Hour')
+        plt.ylabel('Temperature')
+        plt.figure()
+        plt.plot(np.arange(0, 24 * 3), y[i_batch, :], 'gx--')
+        plt.title("Future Temperature")
         plt.xlabel('Hour')
         plt.ylabel('Temperature')
         plt.figure()

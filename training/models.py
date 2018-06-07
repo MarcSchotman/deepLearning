@@ -1,5 +1,5 @@
 from keras import Input, Model
-from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU
+from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU, Dropout, regularizers
 
 
 def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_len_pred=7):
@@ -38,6 +38,205 @@ def basic_lstm(batch_size=8, n_features=1, n_stations=21):
     # Lstm keeps track of time dependencies
     lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
     dense3 = Dense(units=6, activation="tanh")(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense3)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_smaller(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense2 = Dense(units=14, activation="elu")(input)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
+    out = Dense(units=seq_len_pred, activation="linear")(lstm)
+
+    model = Model(input, out)
+    return model
+
+def basic_lstm_dropout50(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu")(input)
+    drop1 = Dropout(rate=0.5)(dense1)
+    dense2 = Dense(units=14, activation="elu")(drop1)
+    drop2 = Dropout(rate=0.5)(dense2)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(drop2)
+    dense3 = Dense(units=6, activation="tanh")(lstm)
+    drop2 = Dropout(rate=0.5)(dense3)
+    out = Dense(units=seq_len_pred, activation="linear")(drop2)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_dropout30(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu")(input)
+    drop1 = Dropout(rate=0.3)(dense1)
+    dense2 = Dense(units=14, activation="elu")(drop1)
+    drop2 = Dropout(rate=0.3)(dense2)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(drop2)
+    dense3 = Dense(units=6, activation="tanh")(lstm)
+    drop2 = Dropout(rate=0.3)(dense3)
+    out = Dense(units=seq_len_pred, activation="linear")(drop2)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_l1(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu", kernel_regularizer=regularizers.l1(0.01))(input)
+    dense2 = Dense(units=14, activation="elu", kernel_regularizer=regularizers.l1(0.01))(dense1)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
+    dense3 = Dense(units=6, activation="tanh", kernel_regularizer=regularizers.l1(0.01))(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense3)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_l2(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu", kernel_regularizer=regularizers.l2(0.01))(input)
+    dense2 = Dense(units=14, activation="elu", kernel_regularizer=regularizers.l2(0.01))(dense1)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
+    dense3 = Dense(units=6, activation="tanh", kernel_regularizer=regularizers.l2(0.01))(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense3)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_l1_act(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu", activity_regularizer=regularizers.l1(0.01))(input)
+    dense2 = Dense(units=14, activation="elu", activity_regularizer=regularizers.l1(0.01))(dense1)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
+    dense3 = Dense(units=6, activation="tanh", activity_regularizer=regularizers.l1(0.01))(lstm)
+    out = Dense(units=seq_len_pred, activation="linear")(dense3)
+
+    model = Model(input, out)
+    return model
+
+
+def basic_lstm_l2_act(batch_size=8, n_features=1, n_stations=21):
+    """
+    Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
+    7 days and we predict the mean temperature at day and at night for the following 7 days.
+    :param batch_size: Size of one batch
+    :param n_features: Number of features per station
+    :param n_stations: Number of stations
+    :param seq_len_pred: Sequence length to predict
+    :return: training
+    """
+    seq_len_train = 7 * 24
+    seq_len_pred = 6
+    input = Input(shape=(seq_len_train, n_features * n_stations),
+                  batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+
+    # We have two dense units to preprocess the input. We use 7 units as the idea is that the network abstracts
+    # from the high resolution to a per day representation.
+    dense1 = Dense(units=14, activation="elu", activity_regularizer=regularizers.l2(0.01))(input)
+    dense2 = Dense(units=14, activation="elu", activity_regularizer=regularizers.l2(0.01))(dense1)
+    # Lstm keeps track of time dependencies
+    lstm = LSTM(units=1, batch_input_shape=(batch_size, seq_len_train, n_stations * n_features))(dense2)
+    dense3 = Dense(units=6, activation="tanh", activity_regularizer=regularizers.l2(0.01))(lstm)
     out = Dense(units=seq_len_pred, activation="linear")(dense3)
 
     model = Model(input, out)
@@ -90,4 +289,11 @@ if __name__ == '__main__':
 
 models = {'meijer': meijer_net,
           'basic_lstm': basic_lstm,
-          'basic_gru': basic_gru}
+          'basic_gru': basic_gru,
+          'lstm_drop30': basic_lstm_dropout30,
+          'lstm_drop50': basic_lstm_dropout50,
+          'lstm_kernel_l1': basic_lstm_l1,
+          'lstm_kernel_l2': basic_lstm_l2,
+          'lstm_kernel_actl1': basic_lstm_l1_act,
+          'lstm_kernel_actl2': basic_lstm_l2_act,
+          'lstm_small': basic_lstm_smaller}

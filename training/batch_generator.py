@@ -3,7 +3,7 @@ import random
 
 import numpy as np
 
-
+#TODO try out regularization, do different resolutions
 def generate_batch(data_dir: str, filenames: [str], station_id_pred, batches_per_file=20, batch_size=3, seq_len_train=7,
                    features_train=None,
                    seq_len_pred=7, features_pred=None, t_max=365 * 24):
