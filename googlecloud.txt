@@ -1,0 +1,27 @@
+GOOGLE CLOUD FOR DUMMIES
+
+==GUIDES===
+
+***NOTE: you do not have to follow the complete guide, most of hit has already been setup****
+
+- Guide: http://cs231n.github.io/gce-tutorial/
+- some extra tips: https://docs.google.com/document/d/1l4SVr0uU4Rw6srstD0QwLRdG6r_Ob-yqIeiUb0_q4zc/edit
+
+
+
+==WHAT TO DO==
+
+Follow guide, hoever note that the folloing steps are already done
+- "Create and Configure Your Account": you already have an account, it is in your gmail
+- "Create an image from our provided disk": Has already been done
+- "Launch a Virtual Instance", however you probably do need to start the created instance
+
+Thus start at: "Connect to Your Virtual Instance"
+Once you have downaloded Google Cloud SDK, just type:
+
+gcloud compute ssh --zone=europe-west4-a cs231-boot
+
+
+==EXTRA==
+
+Note that the CPU, GPU and memory is really low to save on cost, however when you want to run code you can easily increase it.
