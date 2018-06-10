@@ -3,10 +3,8 @@ import pickle
 import random
 import sys
 
-#from downloadData.functions.file_utils import create_dirs, save_file
-
 sys.path.extend(['../'])
-
+from downloadData.functions.file_utils import create_dirs, save_file
 from training.normalization import estimate_stats, normalize_generator
 from training.preprocess_generators import preprocess_generators
 from training.utils import find_closest_station
@@ -39,6 +37,8 @@ model_name = 'basic_gru'
 station_id_pred = None
 filenames_train = ['2015', '2016']
 filenames_valid = ['2017']
+
+features = ['air_temperature', 'humidity']
 
 ENTRIES_PER_FILE = 365 * 24
 position = (39.7392, -104.99903)  # lat,lon
@@ -98,7 +98,8 @@ if __name__ == '__main__':
                                      batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
                                      seq_len_pred=3 * 24,
-                                     seq_len_train=7 * 24)
+                                     seq_len_train=7 * 24,
+                                     features_train = features)
 
     valid_generator = generate_batch(data_dir=data_dir,
                                      filenames=filenames_valid,
@@ -106,15 +107,18 @@ if __name__ == '__main__':
                                      batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
                                      seq_len_pred=3 * 24,
-                                     seq_len_train=7 * 24)
+                                     seq_len_train=7 * 24,
+                                     features_train = features)
 
     # We estimate mean and stddev from the trainingset to normalize our data
-    mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
-    #mean, std = 5.817838704067266 , 3.340678021019071
+    #mean, std = estimate_stats(train_generator, int(n_samples / batch_size),features)
+    mean = [11.2134128,  55.56903077]
+    std = [10.0415145,  24.64839133]
     # We feed the train generators through normalize generators to normalize each batch before
     # feeding it in the network. This also gets rid of missing values
-    train_generator = normalize_generator(train_generator, mean, std)
-    valid_generator = normalize_generator(valid_generator, mean, std)
+    
+    train_generator = normalize_generator(train_generator, mean, std, features)
+    valid_generator = normalize_generator(valid_generator, mean, std, features)
 
     # For now we predict only a mean temperature for day and night so we feed the generators
     # through preprocessors

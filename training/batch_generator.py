@@ -28,7 +28,7 @@ def generate_batch(data_dir: str, filenames: [str], station_id_pred, batches_per
     if features_pred is None:
         features_pred = ['air_temperature']
     if features_train is None:
-        features_train = ['air_temperature']
+        features_train = ['air_temperature', 'humidity']
     if not isinstance(filenames, list):
         filenames = [filenames]
 
