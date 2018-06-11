@@ -1,8 +1,10 @@
 from keras import Input, Model
-from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU, Dropout, regularizers
+from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU, Dropout, regularizers, Lambda, BatchNormalization, \
+    Activation
 
 
-def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_len_pred=7):
+def meijer_net(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+               seq_len_pred=6, n_features_pred=1):
     input = Input(shape=(seq_len_train, n_features * n_stations),
                   batch_shape=(batch_size, seq_len_train, n_features * n_stations))
     conv1 = Conv1D(filters=1, kernel_size=2)(input)
@@ -16,7 +18,8 @@ def meijer_net(seq_len_train=7, batch_size=8, n_features=1, n_stations=21, seq_l
     return model
 
 
-def basic_lstm(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+               seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -44,7 +47,8 @@ def basic_lstm(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_smaller(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_smaller(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                       seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -69,7 +73,9 @@ def basic_lstm_smaller(batch_size=8, n_features=1, n_stations=21):
     model = Model(input, out)
     return model
 
-def basic_lstm_dropout50(batch_size=8, n_features=1, n_stations=21):
+
+def basic_lstm_dropout50(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                         seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -100,7 +106,8 @@ def basic_lstm_dropout50(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_dropout30(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_dropout30(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                         seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -131,7 +138,8 @@ def basic_lstm_dropout30(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_l1(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_l1(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                  seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -159,7 +167,8 @@ def basic_lstm_l1(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_l2(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_l2(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                  seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -187,7 +196,8 @@ def basic_lstm_l2(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_l1_act(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_l1_act(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                      seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -215,7 +225,8 @@ def basic_lstm_l1_act(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_lstm_l2_act(batch_size=8, n_features=1, n_stations=21):
+def basic_lstm_l2_act(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                      seq_len_pred=6, n_features_pred=1):
     """
     Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
     7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -243,7 +254,8 @@ def basic_lstm_l2_act(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
-def basic_gru(batch_size=8, n_features=1, n_stations=21):
+def basic_gru(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+              seq_len_pred=6, n_features_pred=1):
     """
         Creates a training with lstm. Inspired by the network of meijer. We input the hourly temperature for
         7 days and we predict the mean temperature at day and at night for the following 7 days.
@@ -271,6 +283,67 @@ def basic_gru(batch_size=8, n_features=1, n_stations=21):
     return model
 
 
+def _dense_norm_relu(units, input):
+    dense = Dense(units, use_bias=False)(input)
+    norm = BatchNormalization()(dense)
+    act = Activation('relu')(norm)
+    return act
+
+
+def m2m_lstm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+             seq_len_pred=6, n_features_pred=1):
+    input = Input(batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+    dense1 = Dense(n_stations, activation="relu")(input)
+    dense2 = Dense(int(n_stations / 2), activation="relu")(dense1)
+
+    dense3 = Dense(int(n_stations / 4), activation="relu")(dense2)
+    dense4 = Dense(int(n_stations / 4), activation="relu")(dense3)
+    lstm1 = LSTM(int(n_stations / 4), input_shape=(seq_len_train, n_stations * n_features), return_sequences=True)(
+        dense4)
+    shift = Lambda(lambda x: x[:, -seq_len_pred:, :])(lstm1)
+    dense5 = Dense(int(n_stations / 4), activation="relu")(shift)
+    dense6 = Dense(int(n_stations / 4), activation="relu")(dense5)
+    out = Dense(units=n_features_pred, activation="linear")(dense6)
+    return Model(input, out)
+
+
+def m2m_gru(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+            seq_len_pred=6, n_features_pred=1):
+    input = Input(batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+    dense1 = Dense(n_stations, activation="relu")(input)
+    dense2 = Dense(int(n_stations / 2), activation="relu")(dense1)
+
+    dense3 = Dense(int(n_stations / 4), activation="relu")(dense2)
+    dense4 = Dense(int(n_stations / 4), activation="relu")(dense3)
+    lstm1 = GRU(int(n_stations / 4), input_shape=(seq_len_train, n_stations * n_features), return_sequences=True)(
+        dense4)
+    shift = Lambda(lambda x: x[:, -seq_len_pred:, :])(lstm1)
+    dense5 = Dense(int(n_stations / 4), activation="relu")(shift)
+    dense6 = Dense(int(n_stations / 4), activation="relu")(dense5)
+    out = Dense(units=n_features_pred, activation="linear")(dense6)
+    return Model(input, out)
+
+
+def m2m_lstm_norm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
+                  seq_len_pred=6, n_features_pred=1):
+    input = Input(batch_shape=(batch_size, seq_len_train, n_features * n_stations))
+    dense1 = _dense_norm_relu(n_stations, input)
+    dense2 = _dense_norm_relu(int(n_stations / 2), dense1)
+    dense3 = _dense_norm_relu(int(n_stations / 4), dense2)
+    dense4 = _dense_norm_relu(int(n_stations / 4), dense3)
+
+    lstm1 = LSTM(int(n_stations / 4), input_shape=(seq_len_train, n_stations * n_features), return_sequences=True)(
+        dense4)
+
+    shift = Lambda(lambda x: x[:, -seq_len_pred:, :])(lstm1)
+
+    dense5 = _dense_norm_relu(int(n_stations / 4), shift)
+    dense6 = _dense_norm_relu(int(n_stations / 4), dense5)
+
+    out = Dense(units=n_features_pred, activation="linear")(dense6)
+    return Model(input, out)
+
+
 if __name__ == '__main__':
     monday_til_saturday = np.array([
         [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]],
@@ -296,4 +369,7 @@ models = {'meijer': meijer_net,
           'lstm_kernel_l2': basic_lstm_l2,
           'lstm_kernel_actl1': basic_lstm_l1_act,
           'lstm_kernel_actl2': basic_lstm_l2_act,
-          'lstm_small': basic_lstm_smaller}
+          'lstm_small': basic_lstm_smaller,
+          'm2m_lstm': m2m_lstm,
+          'm2m_lstm_norm': m2m_lstm_norm,
+          'm2m_gru': m2m_gru}

@@ -17,7 +17,6 @@ ENTRIES_PER_FILE = 365 * 24
 gen = generate_batch(data_dir=data_dir,
                      filenames=filenames_train,
                      batch_size=batch_size,
-                     batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                      station_id_pred=station_id_pred,
                      seq_len_pred=3 * 24,
                      seq_len_train=7 * 24)

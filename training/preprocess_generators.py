@@ -19,7 +19,7 @@ def _mean_day_night_generator(generator):
     """
     while True:
         x, y = next(generator)
-        y_filtered = np.zeros((y.shape[0], int(y.shape[1] / 12)))
+        y_filtered = np.zeros((y.shape[0], int(y.shape[1] / 12), 1))
         for i in range(0, y_filtered.shape[1], 2):
             mean_night = (np.mean(y[:, i * 12:i * 12 + 6], axis=1) + np.mean(y[:, i * 12 + 18:], axis=1)) / 2
             mean_day = np.mean(y[:, i * 12 + 6:i * 12 + 18], axis=1)
@@ -28,6 +28,22 @@ def _mean_day_night_generator(generator):
         yield x, y_filtered
 
 
+def mean_hour_generator(generator,step=6):
+    while True:
+        x, y = next(generator)
+        y_filtered = mean_hour(y,step)
+        yield x, y_filtered
+
+
+def mean_hour(batch, step=6):
+    y_filtered = np.zeros((batch.shape[0], int(batch.shape[1] / step), batch.shape[2]))
+    for i in range(0, batch.shape[1], step):
+        mean_step = np.mean(batch[:, i:i + step], 1)
+        y_filtered[:, int(i / step)] = mean_step
+    return y_filtered
+
+
 preprocess_generators = {
-    'mean_day_night': _mean_day_night_generator
+    'mean_day_night': _mean_day_night_generator,
+    'mean_hour': mean_hour_generator
 }

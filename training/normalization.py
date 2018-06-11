@@ -28,18 +28,19 @@ def estimate_stats(generator, n_batches):
 def normalize(batch, mean, std):
     """
     Normalize batch by taking into account missing values.
-    :param batch: tensor(#batch_size,#seq_len,#features*#stations)
+    :param batch_normed: tensor(#batch_size,#seq_len,#features*#stations)
     :param mean: mean of dataset
     :param std: standard deviation dataset
     :return: normalized batch: tensor(#batch_size,#seq_len,#features*#stations)
     """
-    missing_idx = (batch == _MISSING_VALUE)
-    valid_idx = (batch != _MISSING_VALUE)
-    batch[valid_idx] -= mean
-    batch[valid_idx] /= std
-    batch[missing_idx] = 0
+    batch_normed = batch.copy()
+    missing_idx = (batch_normed == _MISSING_VALUE)
+    valid_idx = (batch_normed != _MISSING_VALUE)
+    batch_normed[valid_idx] -= mean
+    batch_normed[valid_idx] /= std
+    batch_normed[missing_idx] = 0
 
-    return batch
+    return batch_normed
 
 
 def normalize_generator(generator, mean, std):

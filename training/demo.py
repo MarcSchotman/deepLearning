@@ -1,9 +1,9 @@
 import pickle
 import random
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 from keras.models import load_model
 
 from training import train
@@ -12,20 +12,21 @@ sys.path.extend(['../'])
 
 from training.batch_generator import generate_batch
 from training.normalization import normalize
-from training.preprocess_generators import mean_day_night
-from training.train import ENTRIES_PER_FILE, position
+from training.preprocess_generators import mean_hour
 from training.utils import find_closest_station
 
-model_file = '../out/lstm300/training.h5'
+model_file = '../out/m2m_gru/model.h5'
 model = load_model(model_file)
-batch_size = 8
-data_dir = '../data/RADIUS300KM_PROCESSED/'
+batch_size = 4
+data_dir = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
 filenames_predict = ['2017']
-seq_len_train = 7*24
-seq_len_pred = 3*24
-seq_len_pred_final = 2*6
+t_train_h = 7 * 24
+t_pred_h = 3 * 24
+t_pred_resolution = 1
+t_pred = int(t_pred_h / t_pred_resolution)
 
-mean, std = 5.817838704067266, 3.340678021019071
+# This was estimated on the training set
+mean, std = 8.371623727535322, 10.89360715785454
 
 position = train.position
 ENTRIES_PER_FILE = train.ENTRIES_PER_FILE
@@ -36,17 +37,15 @@ file_cont = pickle.load(open(data_dir + random.choice(filenames_predict) + '.pic
 station_id_pred, distance = find_closest_station(file_cont, position)
 print("Desired location: {}, found closest station to be {} at distance {}".format(position, station_id_pred, distance))
 
-
 """
 Load test data
 """
 generator = generate_batch(data_dir=data_dir,
                            filenames=filenames_predict,
                            batch_size=batch_size,
-                           batches_per_file=int(ENTRIES_PER_FILE /seq_len_pred),
                            station_id_pred=station_id_pred,
-                           seq_len_pred=seq_len_pred,
-                           seq_len_train=seq_len_train)
+                           seq_len_pred=t_pred_h,
+                           seq_len_train=t_train_h)
 
 """
 Predict and show
@@ -54,29 +53,42 @@ Predict and show
 while True:
     x, y = next(generator)
     y_normalized = normalize(y, mean, std)
-    y_true_normed = mean_day_night(y_normalized)
-    y_true = (y_true_normed+mean)*std
+    y_clean = y_normalized * std + mean
+    y_true_mean = mean_hour(y_clean, t_pred_resolution)
+
     x_normalized = normalize(x, mean, std)
-    x_cleaned = (x_normalized+mean)*std
-    y_predicted_normed = model.predict(x)
-    y_predicted = (y_predicted_normed + mean) * std
+    x_cleaned = x_normalized * std + mean
+    y_predicted_normed = model.predict(x_normalized)
+    y_predicted = y_predicted_normed * std + mean
     for i_batch in range(batch_size):
+        x_i_station = x_cleaned[i_batch, :, list(file_cont.keys()).index(station_id_pred)]
+        y_true_i = y_clean[i_batch]
+        y_pred_i = y_predicted[i_batch]
+        y_max = np.maximum(np.max(y_true_i), np.max(x_i_station))
+        y_min = np.minimum(np.min(y_true_i), np.min(x_i_station))
+        y_max += 0.3 * y_max
+        y_min -= 0.3 * y_min
+
         plt.figure()
-        plt.plot(np.arange(0, 24*7), x[i_batch, :, list(file_cont.keys()).index(station_id_pred)], 'gx--')
-        plt.title("Past Temperature")
+        plt.subplot(2, 1, 1)
+        plt.ylim((y_min, y_max))
+        plt.plot(np.arange(0, t_train_h), x_i_station, 'gx--')
+        plt.title("Past Temperature At Target Station - Truth")
         plt.xlabel('Hour')
         plt.ylabel('Temperature')
-        plt.figure()
-        plt.plot(np.arange(0, 24 * 3), y[i_batch, :], 'gx--')
-        plt.title("Future Temperature")
-        plt.xlabel('Hour')
-        plt.ylabel('Temperature')
-        plt.figure()
-        plt.plot(np.arange(0, 3 * 2), y_predicted[i_batch, :], 'bx--')
-        plt.plot(np.arange(0, 3 * 2), y_true[i_batch, :], 'rx--')
-        plt.xticks(np.arange(0, 3 * 2),['Night 1', 'Day 1', 'Night 2', 'Day 2', 'Night 3', 'Day 3'])
-        plt.xlabel('Mean Night/Mean Day')
+        # plt.subplot(3, 1, 2)
+        # plt.ylim((y_min, y_max))
+        # plt.plot(np.arange(0, t_pred_h), y_true_i, 'gx--')
+        # plt.title("Future Temperature - Truth")
+        # plt.xlabel('Hour')
+        # plt.ylabel('Temperature')
+        plt.subplot(2, 1, 2)
+        plt.ylim((y_min, y_max))
+        plt.plot(np.arange(0, t_pred), y_pred_i, 'bx--')
+        plt.plot(np.arange(0, t_pred), y_true_mean[i_batch], 'gx--')
+        plt.xticks(np.arange(0, t_pred), np.arange(0, t_pred_h, t_pred_resolution))
+        plt.xlabel('Mean Every {} hour(s)'.format(t_pred_resolution))
         plt.ylabel('Temperature')
         plt.legend(['Predicted Temperature', 'True Temperature'])
-        plt.title('Future Temperature')
+        plt.title('Future Temperature - Training Goal')
         plt.show()
