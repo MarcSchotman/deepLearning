@@ -1,0 +1,123 @@
+GOOGLE CLOUD FOR DUMMIES
+
+==GUIDES===
+
+***NOTE: you do not have to follow the complete guides, most of it has already been set up****
+
+- Guide: http://cs231n.github.io/gce-tutorial/
+- some extra tips from our course: https://docs.google.com/document/d/1l4SVr0uU4Rw6srstD0QwLRdG6r_Ob-yqIeiUb0_q4zc/edit
+
+
+==HOW TO CONNECT==
+
+Follow guide, hoever note that the folloing steps are already done
+- "Create and Configure Your Account": you already have an account, it is in your gmail
+- "Create an image from our provided disk": Has already been done
+- "Launch a Virtual Instance", however you probably do need to start the created instance
+
+Thus start at: "Connect to Your Virtual Instance"
+Once you have downaloded Google Cloud SDK, just type:
+
+	gcloud compute ssh --zone=europe-west4-a cs231-boot
+
+
+==HOW TO RUN CODE==
+
+-Run:
+
+	screen
+
+This allows us to detach the code from the terminal, thus now we can close the terminal without stopping the code from running.
+
+-Run:
+
+	source activate tensorflow
+
+This activatesthe enviroment with everything set up properly
+
+-go to:
+
+	cd /home/deepLearning
+
+
+- Now you can run any code with:
+	
+	python file.py
+
+
+- hide screeen session with
+	
+	ctr + A
+	d
+
+Now you can close your terminal, the code will keep on runnig
+
+- When you want to see how for the code is run:
+
+	screen -r
+
+This allows you to acces the session where the code is running
+
+
+===COPY FILES FROM LOCAL DIR===
+
+Use: https://cloud.google.com/compute/docs/instances/transfer-files#winscp
+
+
+*** Note: Use you actual username NOT your email address ***
+** Note: Can can likely only copy to your personal directory, that is fine just move the file later. ***
+
+
+====GPU====
+
+-First check on cloud.google.com that atleat 1 GPU is selected
+-Check if you have an GPU running 
+
+	nvidia-smi
+
+-Run:
+
+	source activate tensorflow
+
+-This opens the anaconda enviroment named "tensorflow" which has everything set up to run GPU(s).
+-Verify that the GPU(s) are found with:
+
+	pyton /home/deepLearning/tools/keras_gpu.py
+
+-Check GPU usage
+
+	https://towardsdatascience.com/howto-profile-tensorflow-1a49fb18073d
+
+*** this might  be usefull ***
+
+-Insepect cuda version:
+	
+	cat /usr/local/cuda/version.txt
+
+
+====RANDOM LINKS====
+
+gpu usage tensor flow: https://towardsdatascience.com/howto-profile-tensorflow-1a49fb18073d
+
+keras + gpu: https://stackoverflow.com/questions/45662253/can-i-run-keras-model-on-gpu
+
+tensorflow + gpu: https://www.tensorflow.org/install/install_linux
+
+source .bashrc
+
+/home/Taeke/anaconda3/bin/activate to /home/Taeke/.bashrc
+A backup will be made to: /home/Taeke/.bashrc-anaconda3.bak
+
+==EXTRA==
+
+Note that the CPU, GPU and memory is really low to save on cost, however when you want to run code you can easily increase it.
+
+==Problem solving==
+
+Q: When I run code it gets stuck at a certain part for a long time and returns "Killig"
+A: check CPU usage of VM instance, if you are at 100% increase it (note that this cost more money).
+
+Q: when installing packages I get permission denied
+A: install with pip install package --user
+
+

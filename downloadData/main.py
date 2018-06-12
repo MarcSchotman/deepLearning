@@ -37,9 +37,9 @@ missingValueKeys= ['air_temperature','sea_level_pressure','humidity','dew-point'
 missingValueList = make_missingValueDict()
 #so it elimenates  stations with higher missing percentage of cut_off_percentage for the following keys:
 filterKeys = ['air_temperature','humidity' , 'wind_speed','wind_direction']
-
+generalMissingValue = 999 #LEAVE AS INTEGER PLEASE
 #PREPROCESS DATA
 for r in r_list:
     r = str(r)
-    pre_processing(startYear, endYear, r, cut_off_percentage, maxDiff, missingValueList, missingValueKeys,filterKeys,measurementsADay)
+    pre_processing(startYear, endYear, r, cut_off_percentage, maxDiff,generalMissingValue, missingValueList, missingValueKeys,filterKeys,measurementsADay)
 

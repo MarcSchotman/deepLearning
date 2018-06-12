@@ -4,7 +4,7 @@ Created on Tue May 15 09:37:28 2018
 
 @author: Taeke
 """
-def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, missingValueList, missingValueKeys,filterKeys,measurementsADay):
+def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, generalMissingValue,missingValueList, missingValueKeys,filterKeys,measurementsADay):
     import numpy as np
     import pickle
     import os.path
@@ -17,6 +17,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
     from find_usable_stations import find_usable_stations
     from match_dates import match_dates
     from desired_date_list import desired_date_list
+    from replace_missing_values import replace_missing_values
     
     
     #map location unprocessed data
@@ -59,6 +60,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, miss
             dateList = desired_date_list(year, measurementsADay)
       
             data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
+            data_processed[ID] = replace_missing_values(data_processed[ID],filterKeys, generalMissingValue,missingValueList)
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
         if not os.path.exists(processedFilesLocation):

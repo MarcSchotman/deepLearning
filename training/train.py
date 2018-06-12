@@ -3,6 +3,8 @@ import pickle
 import random
 import sys
 
+#from downloadData.functions.file_utils import create_dirs, save_file
+
 sys.path.extend(['../'])
 from downloadData.functions.file_utils import create_dirs, save_file
 
@@ -16,6 +18,8 @@ from training.Training import Training
 from training.batch_generator import generate_batch
 from training.models import models
 
+"""
+Script to start a training. 
 
 def train(batch_size=4,
           n_samples=None,
@@ -83,6 +87,7 @@ def train(batch_size=4,
     train_generator = generate_batch(data_dir=data_dir,
                                      filenames=filenames_train,
                                      batch_size=batch_size,
+                                     batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
                                      seq_len_pred=t_pred_d * 24,
                                      seq_len_train=t_train_h)
@@ -90,6 +95,7 @@ def train(batch_size=4,
     valid_generator = generate_batch(data_dir=data_dir,
                                      filenames=filenames_valid,
                                      batch_size=batch_size,
+                                     batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
                                      seq_len_pred=t_pred_d * 24,
                                      seq_len_train=t_train_h)
