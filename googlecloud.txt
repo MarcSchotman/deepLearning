@@ -20,7 +20,6 @@ Once you have downaloded Google Cloud SDK, just type:
 
 	gcloud compute ssh --zone=europe-west4-a cs231-boot
 
-
 ==HOW TO RUN CODE==
 
 -Run:
@@ -93,6 +92,14 @@ Use: https://cloud.google.com/compute/docs/instances/transfer-files#winscp
 -Insepect cuda version:
 	
 	cat /usr/local/cuda/version.txt
+
+
+===REQUIREMENTS===
+
+if you select an instance with too low specs it will crash, for downlaoding data RAM seems to be the limit:
+
+1000km, 237 stations, >25GB
+
 
 
 ====RANDOM LINKS====
