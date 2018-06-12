@@ -16,56 +16,36 @@ from training.Training import Training
 from training.batch_generator import generate_batch
 from training.models import models
 
-"""
-Script to start a training. 
 
-It will create a directory in out/log_dir and save 
-the trained training [training.h5], a summary of the training/training configuration [summary.txt]
-and a summary of the training (loss per epoch) [log.csv].
-
-It will also create a tensorboard logfile that enables visualization of the training graph
-and training procedure with tensorboard. To visualize type:
- 'python -m tensorboard.main --logdir=<Path-to-log_dir>'
-
-Run this script from terminal with :
- 'python train.py --model_name X --data_dir X --batch_size X --n_samples X --log_dir X/X'
-"""
-batch_size = 4
-n_samples = None
-log_dir = '../out/m2m_gru/'
-data_dir = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
-t_train_h = 7 * 24
-t_pred_d = 3
-t_pred_resolution_h = 1
-t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
-
-model_name = 'm2m_gru'
-station_id_pred = None
-filenames_train = ['2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009', '2008']
-filenames_valid = ['2017']
-mean, std = None,None#5.817838704067266, 3.340678021019071
-ENTRIES_PER_FILE = 365 * 24
-position = (39.7392, -104.99903)  # lat,lon
-
-if __name__ == '__main__':
+def train(batch_size=4,
+          n_samples=None,
+          log_dir='../out/m2m_gru/',
+          data_dir='../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/',
+          t_train_h=7 * 24,
+          t_pred_d=3,
+          t_pred_resolution_h=1,
+          model_name='m2m_gru',
+          filenames_train=['2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009', '2008'],
+          filenames_valid=['2017'],
+          mean=None,
+          std=None,
+          ENTRIES_PER_FILE=365 * 24,
+          position=(39.7392, -104.99903)):
     """
-    Overwrite parameters when run from command line
-    """
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('--model_name',
-                           help='Name of the training to train: ' + str([str(k) for k in models.keys()]),
-                           default=model_name)
-    argparser.add_argument('--log_dir', help='Path to store training output', default=log_dir)
-    argparser.add_argument('--data_dir', help='Path to read data files', default=data_dir)
-    argparser.add_argument('--batch_size', help='Size of one Batch', default=batch_size)
-    argparser.add_argument('--n_samples', help='Amount of samples to train', default=n_samples)
-    args = argparser.parse_args()
+    Script to start a training.
 
-    batch_size = args.batch_size
-    log_dir = args.log_dir
-    data_dir = args.data_dir
-    model_name = args.model_name
-    n_samples = args.n_samples
+    It will create a directory in out/log_dir and save
+    the trained training [training.h5], a summary of the training/training configuration [summary.txt]
+    and a summary of the training (loss per epoch) [log.csv].
+
+    It will also create a tensorboard logfile that enables visualization of the training graph
+    and training procedure with tensorboard. To visualize type:
+     'python -m tensorboard.main --logdir=<Path-to-log_dir>'
+
+    Run this script from terminal with :
+     'python train.py --model_name X --data_dir X --batch_size X --n_samples X --log_dir X/X'
+    """
+    t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
 
     if n_samples is None:
         n_samples = int(len(filenames_train) * ENTRIES_PER_FILE / t_train_h)
@@ -125,8 +105,8 @@ if __name__ == '__main__':
 
     # For now we predict only a mean temperature for day and night so we feed the generators
     # through preprocessors
-    train_generator = preprocess_generators['mean_hour'](train_generator,step=t_pred_resolution_h)
-    valid_generator = preprocess_generators['mean_hour'](valid_generator,step=t_pred_resolution_h)
+    train_generator = preprocess_generators['mean_hour'](train_generator, step=t_pred_resolution_h)
+    valid_generator = preprocess_generators['mean_hour'](valid_generator, step=t_pred_resolution_h)
 
     print("Dataset statistics: {} +- {}".format(mean, std))
     print("Number of samples: ", n_samples)
@@ -143,9 +123,36 @@ if __name__ == '__main__':
                         n_samples=n_samples,
                         log_dir=log_dir)
     pprint(training.summary)
-    save_file(training.summary, name='summary.txt', path=log_dir)
+    summary = training.summary
+    summary['mean'] = mean
+    summary['std'] = std
+    summary['t_train_h'] = t_train_h
+    summary['t_pred'] = t_pred
+    summary['t_pred_resolution_h'] = t_pred_resolution_h
+    save_file(summary, name='summary.txt', path=log_dir)
 
     """
     Start Training
     """
     training.start()
+
+
+if __name__ == '__main__':
+    """
+    Overwrite parameters when run from command line
+    """
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('--model_name',
+                           help='Name of the training to train: ' + str([str(k) for k in models.keys()]),
+                           default='m2m_lstm')
+    argparser.add_argument('--log_dir', help='Path to store training output', default='out/temp/')
+    argparser.add_argument('--data_dir', help='Path to read data files', default='../data/RADIUS500KM_PROCESSED')
+    argparser.add_argument('--batch_size', help='Size of one Batch', default=8)
+    argparser.add_argument('--n_samples', help='Amount of samples to train', default=None)
+    args = argparser.parse_args()
+
+    train(batch_size=args.batch_size,
+          log_dir=args.log_dir,
+          data_dir=args.data_dir,
+          model_name=args.model_name,
+          n_samples=args.n_samples)
