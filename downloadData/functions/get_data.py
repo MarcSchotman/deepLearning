@@ -57,17 +57,20 @@ def get_data(year,STATION_ID_LIST, keys,destinationPath):
             #function from github which parses the nasty noaa data nicely for us.
             parser.loads(content)                
             reports = parser.get_reports()
+            
             #selects the reports corresponding to the alst station
             reports = reports[LastReportLength:]
             LastReportLength += len(reports)
             
             #initilize nested dict for current station
             data_year[station_id] ={}
+            
             #shows all possible keys (just so we remeber, dont delete please(!))
             possible_keys = dir(reports[0])
             
             #initilizes keys inside nested dictionary
             data_year[station_id] = data_year[station_id].fromkeys(keys)
+            
             #initilize keys as lists so they can fit the year long features
             for i in keys:
                 data_year[station_id][i] = []
@@ -91,8 +94,8 @@ def get_data(year,STATION_ID_LIST, keys,destinationPath):
                     data_year[station_id][key].append(value_inserted)
                     #getattr(report,i) makes it: report.i using the variable i.
                     #report['air_temperature'] for example gives the air temperature of this line
-            reports = None
-            content = None
+            del reports
+            del content
         return data_year
 
 #import os.path

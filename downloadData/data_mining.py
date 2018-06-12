@@ -9,7 +9,8 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
     import numpy as np
     import os
     import pickle
-    import sys    
+    import sys   
+
     #location of functions
     functionsLocation = os.path.join(os.getcwd(), 'functions')
     sys.path.insert(0, functionsLocation)
@@ -23,7 +24,7 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
     minStartDate = int(startYear+'0000') #YearMonthDay
     minEndDate = int(endYear+'0000')  #YearMonthDay
     deepLearningPath, _  = os.path.split(os.getcwd())
-    map_location = os.path.join(deepLearningPath , 'data')
+    map_location = os.path.join(deepLearningPath , 'data_debug')
     
     #DATA GATEHRED: 
     keys = ['datetime','air_temperature','sea_level_pressure','humidity','elevation','dew-point','wind_speed','wind_direction','wind_observation_direction_type','longitude','latitude']
@@ -77,6 +78,7 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
         print('Stations already downloaded:',len(removed_stations))
         #downloads all data for all stations in station_ID and years in year
         for year in YEARS:
+            
             #Attemps three times to download data before stopping
             try:
                 data_year = get_data(year, STATION_ID_LIST,keys,destinationPath)
@@ -105,8 +107,11 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
                 for index in range(0,len(removed_stations)):
                     station_id = removed_stations[index][0] + '-' + removed_stations[index][1]
                     data_year[station_id] = []
-                    data_year[station_id] = prev_data_year[station_id].copy()
+                    data_year[station_id] = prev_data_year[station_id] #.copy()
             print('Total stations being saved:',len(data_year))    
+            
+            # clear memory
+            del prev_data_year
             
             #time to save the dict
             fileName = str(year) +'.pickle'
@@ -118,8 +123,13 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
             #uses pikcle for dumping dictionary
             with open(full_path_name, 'wb') as handle:
                 pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                
+            # clear memory
+            del data_year
+                
     print('Download completed')
     return 0
+
 ##INPUTS
 #lattitudeCenter = 52.0116 #lattitude and longitude Delft
 #longitudeCenter = 4.3571
