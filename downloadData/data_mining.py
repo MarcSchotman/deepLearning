@@ -108,10 +108,13 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
                     station_id = removed_stations[index][0] + '-' + removed_stations[index][1]
                     data_year[station_id] = []
                     data_year[station_id] = prev_data_year[station_id] #.copy()
+                
+                # clear memory
+                del prev_data_year
             print('Total stations being saved:',len(data_year))    
             
-            # clear memory
-            del prev_data_year
+            
+            
             
             #time to save the dict
             fileName = str(year) +'.pickle'
