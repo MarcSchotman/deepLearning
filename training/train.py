@@ -18,8 +18,7 @@ from training.Training import Training
 from training.batch_generator import generate_batch
 from training.models import models
 
-"""
-Script to start a training. 
+
 
 def train(batch_size=4,
           n_samples=None,
