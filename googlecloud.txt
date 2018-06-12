@@ -94,6 +94,16 @@ Use: https://cloud.google.com/compute/docs/instances/transfer-files#winscp
 	cat /usr/local/cuda/version.txt
 
 
+== Memory profiling ==
+
+Add a profile decorator to a function and run python with:
+
+	mprof run <script>
+
+plot results with:
+
+	mprof plot
+
 ===REQUIREMENTS===
 
 if you select an instance with too low specs it will crash, for downlaoding data RAM seems to be the limit:

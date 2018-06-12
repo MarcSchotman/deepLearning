@@ -4,6 +4,9 @@ Created on Mon May  7 22:02:59 2018
 
 @author: m_a_s
 """
+from memory_profiler import profile
+
+@profile
 def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
     #import functions
     import numpy as np

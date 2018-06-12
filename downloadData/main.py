@@ -10,6 +10,7 @@ from data_mining import data_mining
 from pre_processing import pre_processing
 import os
 import sys    
+
 #location of functions
 functionsLocation = os.path.join(os.getcwd(), 'functions')
 sys.path.insert(0, functionsLocation)
