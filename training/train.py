@@ -3,27 +3,42 @@ import pickle
 import random
 import sys
 
-#from downloadData.functions.file_utils import create_dirs, save_file
+# from downloadData.functions.file_utils import create_dirs, save_file
+from training.models import meijer_net, basic_lstm, basic_gru, basic_lstm_dropout30, basic_lstm_dropout50, \
+    basic_lstm_l1, basic_lstm_l2, basic_lstm_l1_act, basic_lstm_l2_act, basic_lstm_smaller, m2m_lstm, m2m_lstm_norm, \
+    m2m_gru
+from training.preprocess_generators import mean_day_night_generator, mean_hour_generator
 
-sys.path.extend(['../'])
+sys.path.extend(['../', './'])
 from downloadData.functions.file_utils import create_dirs, save_file
 
 from training.normalization import estimate_stats, normalize_generator
-from training.preprocess_generators import preprocess_generators
 from training.utils import find_closest_station
 
 from pprint import pprint
 
 from training.Training import Training
 from training.batch_generator import generate_batch
-from training.models import models
 
-"""
-Script to start a training. 
+models = {'meijer': meijer_net,
+          'basic_lstm': basic_lstm,
+          'basic_gru': basic_gru,
+          'lstm_drop30': basic_lstm_dropout30,
+          'lstm_drop50': basic_lstm_dropout50,
+          'lstm_kernel_l1': basic_lstm_l1,
+          'lstm_kernel_l2': basic_lstm_l2,
+          'lstm_kernel_actl1': basic_lstm_l1_act,
+          'lstm_kernel_actl2': basic_lstm_l2_act,
+          'lstm_small': basic_lstm_smaller,
+          'm2m_lstm': m2m_lstm,
+          'm2m_lstm_norm': m2m_lstm_norm,
+          'm2m_gru': m2m_gru}
 
-It will create a directory in out/log_dir and save 
-the trained training [training.h5], a summary of the training/training configuration [summary.txt]
-and a summary of the training (loss per epoch) [log.csv].
+preprocess_generators = {
+    'mean_day_night': mean_day_night_generator,
+    'mean_hour': mean_hour_generator
+}
+
 
 def train(batch_size=4,
           n_samples=None,
@@ -38,13 +53,15 @@ def train(batch_size=4,
           mean=None,
           std=None,
           ENTRIES_PER_FILE=365 * 24,
-          position=(39.7392, -104.99903)):
+          position=(39.7392, -104.99903),
+          features_train=['air_temperature', 'humidity']
+          , features_predict=['air_temperature']):
     """
     Script to start a training.
 
     It will create a directory in out/log_dir and save
-    the trained training [training.h5], a summary of the training/training configuration [summary.txt]
-    and a summary of the training (loss per epoch) [log.csv].
+    the trained training [model.h5], a summary of the training/training configuration [summary.txt/summary.pkl],
+    and a log of the training (loss per epoch) [log.csv].
 
     It will also create a tensorboard logfile that enables visualization of the training graph
     and training procedure with tensorboard. To visualize type:
@@ -77,7 +94,8 @@ def train(batch_size=4,
     Create Model
     """
     model = models[model_name](n_stations=n_stations, batch_size=batch_size, seq_len_pred=t_pred,
-                               seq_len_train=t_train_h)
+                               seq_len_train=t_train_h, n_features=len(features_train),
+                               n_features_pred=len(features_predict))
     print('Training training: ', model_name)
     print('Storing files at: ', log_dir)
     print('Reading data from: ', data_dir)
@@ -91,27 +109,36 @@ def train(batch_size=4,
     train_generator = generate_batch(data_dir=data_dir,
                                      filenames=filenames_train,
                                      batch_size=batch_size,
-                                     batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
-                                     seq_len_pred=t_pred_d * 24,
-                                     seq_len_train=t_train_h)
+                                     t_pred=t_pred_d * 24,
+                                     t_train=t_train_h,
+                                     features_train=features_train,
+                                     features_pred=features_predict
+                                     )
 
     valid_generator = generate_batch(data_dir=data_dir,
                                      filenames=filenames_valid,
                                      batch_size=batch_size,
-                                     batches_per_file=int(ENTRIES_PER_FILE / 7 * 24),
                                      station_id_pred=station_id_pred,
-                                     seq_len_pred=t_pred_d * 24,
-                                     seq_len_train=t_train_h)
+                                     t_pred=t_pred_d * 24,
+                                     t_train=t_train_h,
+                                     features_train=features_train,
+                                     features_pred=features_predict
+
+                                     )
 
     # We estimate mean and stddev from the trainingset to normalize our data
     if mean is None or std is None:
-        mean, std = estimate_stats(train_generator, int(n_samples / batch_size))
+        mean, std = estimate_stats(train_generator, int(n_samples / batch_size),
+                                   features=['air_temperature', 'humidity']
+                                   )
 
     # We feed the train generators through normalize generators to normalize each batch before
     # feeding it in the network. This also gets rid of missing values
-    train_generator = normalize_generator(train_generator, mean, std)
-    valid_generator = normalize_generator(valid_generator, mean, std)
+    train_generator = normalize_generator(train_generator, mean, std, len(features_train), len(features_predict),
+                                          )
+    valid_generator = normalize_generator(valid_generator, mean, std, len(features_train), len(features_predict),
+                                          )
 
     # For now we predict only a mean temperature for day and night so we feed the generators
     # through preprocessors
@@ -132,17 +159,28 @@ def train(batch_size=4,
                         valid_gen=valid_generator,
                         n_samples=n_samples,
                         log_dir=log_dir)
-    pprint(training.summary)
+    """
+    Store training details
+    """
     summary = training.summary
+    summary['model_name'] = model_name
+    summary['files_training'] = filenames_train
+    summary['files_valid'] = filenames_valid
+    summary['station_to_predict'] = station_id_pred
     summary['mean'] = mean
     summary['std'] = std
     summary['t_train_h'] = t_train_h
     summary['t_pred'] = t_pred
     summary['t_pred_resolution_h'] = t_pred_resolution_h
+    summary['features_train'] = features_train
+    summary['features_pred'] = features_predict
+    pprint(summary)
+
     save_file(summary, name='summary.txt', path=log_dir)
+    save_file(summary, name='summary.pkl', path=log_dir)
 
     """
-    Start Training
+    Oppaa!
     """
     training.start()
 
@@ -153,10 +191,10 @@ if __name__ == '__main__':
     """
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--model_name',
-                           help='Name of the training to train: ' + str([str(k) for k in models.keys()]),
+                           help='Name of the model to train. Available:\n ' + str([str(k) for k in models.keys()]),
                            default='m2m_lstm')
     argparser.add_argument('--log_dir', help='Path to store training output', default='out/temp/')
-    argparser.add_argument('--data_dir', help='Path to read data files', default='../data/RADIUS500KM_PROCESSED')
+    argparser.add_argument('--data_dir', help='Path to read data files', default='../data/RADIUS300KM_PROCESSED')
     argparser.add_argument('--batch_size', help='Size of one Batch', default=8)
     argparser.add_argument('--n_samples', help='Amount of samples to train', default=None)
     args = argparser.parse_args()

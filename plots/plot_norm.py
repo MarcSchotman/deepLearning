@@ -18,8 +18,8 @@ gen = generate_batch(data_dir=data_dir,
                      filenames=filenames_train,
                      batch_size=batch_size,
                      station_id_pred=station_id_pred,
-                     seq_len_pred=3 * 24,
-                     seq_len_train=7 * 24)
+                     t_pred=3 * 24,
+                     t_train=7 * 24)
 
 # We estimate mean and stddev from the trainingset to normalize our data
 mean, std = estimate_stats(gen, int(n_samples / batch_size))

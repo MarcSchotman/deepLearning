@@ -359,17 +359,3 @@ if __name__ == '__main__':
     model.fit(x=monday_til_saturday, y=sunday, epochs=1, batch_size=3)
     prediction = model.predict(monday_til_saturday, batch_size=3, verbose=2)
     print(prediction)
-
-models = {'meijer': meijer_net,
-          'basic_lstm': basic_lstm,
-          'basic_gru': basic_gru,
-          'lstm_drop30': basic_lstm_dropout30,
-          'lstm_drop50': basic_lstm_dropout50,
-          'lstm_kernel_l1': basic_lstm_l1,
-          'lstm_kernel_l2': basic_lstm_l2,
-          'lstm_kernel_actl1': basic_lstm_l1_act,
-          'lstm_kernel_actl2': basic_lstm_l2_act,
-          'lstm_small': basic_lstm_smaller,
-          'm2m_lstm': m2m_lstm,
-          'm2m_lstm_norm': m2m_lstm_norm,
-          'm2m_gru': m2m_gru}

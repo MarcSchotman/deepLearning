@@ -8,7 +8,7 @@ from keras.models import load_model
 
 from training import train
 
-sys.path.extend(['../'])
+sys.path.extend(['../','./'])
 
 from training.batch_generator import generate_batch
 from training.normalization import normalize
@@ -28,8 +28,6 @@ t_pred = int(t_pred_h / t_pred_resolution)
 # This was estimated on the training set
 mean, std = 8.371623727535322, 10.89360715785454
 
-position = train.position
-ENTRIES_PER_FILE = train.ENTRIES_PER_FILE
 """
 Find closest station
 """
@@ -44,8 +42,8 @@ generator = generate_batch(data_dir=data_dir,
                            filenames=filenames_predict,
                            batch_size=batch_size,
                            station_id_pred=station_id_pred,
-                           seq_len_pred=t_pred_h,
-                           seq_len_train=t_train_h)
+                           t_pred=t_pred_h,
+                           t_train=t_train_h)
 
 """
 Predict and show

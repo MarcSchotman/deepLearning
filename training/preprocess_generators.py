@@ -11,7 +11,7 @@ def mean_day_night(batch):
     return y_filtered
 
 
-def _mean_day_night_generator(generator):
+def mean_day_night_generator(generator):
     """
     Replaces the hourly measurements with the mean at day and night time.
     :param generator:
@@ -43,7 +43,3 @@ def mean_hour(batch, step=6):
     return y_filtered
 
 
-preprocess_generators = {
-    'mean_day_night': _mean_day_night_generator,
-    'mean_hour': mean_hour_generator
-}
