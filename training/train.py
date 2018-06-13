@@ -18,7 +18,12 @@ from training.Training import Training
 from training.batch_generator import generate_batch
 from training.models import models
 
+"""
+Script to start a training. 
 
+It will create a directory in out/log_dir and save 
+the trained training [training.h5], a summary of the training/training configuration [summary.txt]
+and a summary of the training (loss per epoch) [log.csv].
 
 def train(batch_size=4,
           n_samples=None,
