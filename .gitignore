@@ -1,5 +1,8 @@
 out
 data
+data_debug
+*/mprofile*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
