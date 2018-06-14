@@ -3,13 +3,14 @@ import pickle
 import random
 import sys
 
+sys.path.extend(['../', './'])
+
 # from downloadData.functions.file_utils import create_dirs, save_file
 from training.models import meijer_net, basic_lstm, basic_gru, basic_lstm_dropout30, basic_lstm_dropout50, \
     basic_lstm_l1, basic_lstm_l2, basic_lstm_l1_act, basic_lstm_l2_act, basic_lstm_smaller, m2m_lstm, m2m_lstm_norm, \
     m2m_gru
 from training.preprocess_generators import mean_day_night_generator, mean_hour_generator
 
-sys.path.extend(['../', './'])
 from downloadData.functions.file_utils import create_dirs, save_file
 
 from training.normalization import estimate_stats, normalize_generator
@@ -39,23 +40,36 @@ preprocess_generators = {
     'mean_hour': mean_hour_generator
 }
 
+# default values
+DATA_DIR = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
+LOG_DIR = '../out/m2m_lstm/'
+BATCH_SIZE = 4
+MODEL_NAME = 'm2m_lstm'
+POSITION = (39.7392, -104.99903)
+FEATURES_TRAIN = ['air_temperature', 'humidity']
+FEATURES_PREDICT = ['air_temperature']
+FILENAMES_TRAIN = ['2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009', '2008']
+FILENAMES_VALID = ['2017']
+T_TRAIN_H = 7 * 24
+T_PRED_D = 3
 
-def train(batch_size=4,
+
+def train(batch_size=BATCH_SIZE,
           n_samples=None,
-          log_dir='../out/m2m_gru/',
-          data_dir='../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/',
-          t_train_h=7 * 24,
-          t_pred_d=3,
+          log_dir=LOG_DIR,
+          data_dir=DATA_DIR,
+          t_train_h=T_TRAIN_H,
+          t_pred_d=T_PRED_D,
           t_pred_resolution_h=1,
-          model_name='m2m_gru',
-          filenames_train=['2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009', '2008'],
-          filenames_valid=['2017'],
+          model_name=MODEL_NAME,
+          filenames_train=FILENAMES_TRAIN,
+          filenames_valid=FILENAMES_VALID,
           mean=None,
           std=None,
-          ENTRIES_PER_FILE=365 * 24,
-          position=(39.7392, -104.99903),
-          features_train=['air_temperature', 'humidity']
-          , features_predict=['air_temperature']):
+          file_len=365 * 24,
+          position=POSITION,
+          features_train=FEATURES_TRAIN
+          , features_predict=FEATURES_PREDICT):
     """
     Script to start a training.
 
@@ -73,7 +87,7 @@ def train(batch_size=4,
     t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
 
     if n_samples is None:
-        n_samples = int(len(filenames_train) * ENTRIES_PER_FILE / t_train_h)
+        n_samples = int(len(filenames_train) * file_len / t_train_h)
 
     if not log_dir.endswith('/'):
         log_dir += '/'
@@ -192,10 +206,10 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--model_name',
                            help='Name of the model to train. Available:\n ' + str([str(k) for k in models.keys()]),
-                           default='m2m_lstm')
-    argparser.add_argument('--log_dir', help='Path to store training output', default='out/temp/')
-    argparser.add_argument('--data_dir', help='Path to read data files', default='../data/RADIUS300KM_PROCESSED')
-    argparser.add_argument('--batch_size', help='Size of one Batch', default=8)
+                           default=MODEL_NAME)
+    argparser.add_argument('--log_dir', help='Path to store training output', default=LOG_DIR)
+    argparser.add_argument('--data_dir', help='Path to read data files', default=DATA_DIR)
+    argparser.add_argument('--batch_size', help='Size of one Batch', default=BATCH_SIZE)
     argparser.add_argument('--n_samples', help='Amount of samples to train', default=None)
     args = argparser.parse_args()
 
