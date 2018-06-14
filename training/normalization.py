@@ -1,32 +1,32 @@
 import numpy as np
 
-_MISSING_VALUE = 999
+_MISSING_VALUE = 999.9
 
-
-def estimate_stats(generator, n_batches, features):
+def estimate_stats(generator, n_batches, d, mask_value=999):
     """
     Estimates mean and stddev of dataset excluding missing data.
+    :param d: number of features
+    :param mask_value: used for missing values, will not be considered
     :param generator: generator that loads dataset batchwise
     :param n_batches: number of batches
     :return: (mean,stddev)
     """
-    nr_features = len(features)
-    mean_sum = np.zeros((nr_features,), dtype=float)
-    std_sum = np.zeros((nr_features,), dtype=float)
+    mean_sum = np.zeros((d,), dtype=float)
+    std_sum = np.zeros((d,), dtype=float)
 
-    mean_est = np.zeros((nr_features,), dtype=float)
-    std_est = np.zeros((nr_features,), dtype=float)
+    mean_est = np.zeros((d,), dtype=float)
+    std_est = np.zeros((d,), dtype=float)
 
     for i in range(n_batches):
         x, _ = next(generator)
         # reshape
         batch_size, seq_len, features_stations = x.shape
-        stations_len = int(features_stations / nr_features)
+        stations_len = int(features_stations / d)
 
-        x = np.reshape(x, (batch_size, seq_len, stations_len, nr_features))
+        x = np.reshape(x, (batch_size, seq_len, stations_len, d))
 
-        for index_feature in range(nr_features):
-            valid_idx = (x[:, :, :, index_feature] != _MISSING_VALUE)
+        for index_feature in range(d):
+            valid_idx = (x[:, :, :, index_feature] != mask_value)
             mean_sum[index_feature] += np.mean(x[valid_idx, index_feature], axis=0)
             std_sum[index_feature] += np.std(x[valid_idx, index_feature], axis=0)
 
@@ -39,9 +39,10 @@ def estimate_stats(generator, n_batches, features):
     return mean_est, std_est
 
 
-def normalize(batch, mean, std, d):
+def normalize(batch, mean, std, d, mask_value=999):
     """
     Normalize batch by taking into account missing values.
+    :param mask_value: used for missing values, will not be considered
     :param batch: tensor(#batch_size,#seq_len,#features*#stations)
     :param mean: mean of dataset
     :param std: standard deviation dataset
@@ -55,8 +56,8 @@ def normalize(batch, mean, std, d):
     batch = np.reshape(batch, (batch_size, seq_len, stations_len, d))
 
     for index_feature in range(d):
-        missing_idx = (batch[:, :, :, index_feature] == _MISSING_VALUE)
-        valid_idx = (batch[:, :, :, index_feature] != _MISSING_VALUE)
+        missing_idx = (batch[:, :, :, index_feature] == mask_value)
+        valid_idx = (batch[:, :, :, index_feature] != mask_value)
 
         batch[valid_idx] -= mean[index_feature]
         batch[valid_idx] /= std[index_feature]
@@ -66,10 +67,11 @@ def normalize(batch, mean, std, d):
     return batch
 
 
-def normalize_generator(generator, mean, std, d_train, d_predict):
+def normalize_generator(generator, mean, std, d_train, d_predict, mask_value=999):
     """
     Generator to normalize batchwise before feeding it to the network.
     :param generator: generator that loads dataset batchwise
+    :param mask_value: used for missing values, will not be considered
     :param mean: mean of dataset
     :param std: standard deviation of dataset
     :param d_train: features used for training
@@ -78,4 +80,4 @@ def normalize_generator(generator, mean, std, d_train, d_predict):
     """
     while True:
         x, y = next(generator)
-        yield normalize(x, mean, std, d_train), normalize(y, mean, std, d_predict)
+        yield normalize(x, mean, std, d_train, mask_value), normalize(y, mean, std, d_predict, mask_value)
