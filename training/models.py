@@ -1,6 +1,6 @@
 from keras import Input, Model
 from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU, Dropout, regularizers, Lambda, BatchNormalization, \
-    Activation
+    Activation, Masking
 
 
 def meijer_net(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
@@ -291,9 +291,10 @@ def _dense_norm_relu(units, input):
 
 
 def m2m_lstm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
-             seq_len_pred=6, n_features_pred=1):
-    input = Input(batch_shape=(batch_size, seq_len_train, n_features * n_stations))
-    dense1 = Dense(n_stations, activation="relu")(input)
+             seq_len_pred=6, n_features_pred=1, mask_value=999, padding=0):
+    input = Input(batch_shape=(batch_size, seq_len_train + padding, n_features * n_stations))
+    mask = Masking(mask_value=mask_value)(input)
+    dense1 = Dense(n_stations, activation="relu")(mask)
     dense2 = Dense(int(n_stations / 2), activation="relu")(dense1)
 
     dense3 = Dense(int(n_stations / 4), activation="relu")(dense2)

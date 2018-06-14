@@ -41,7 +41,7 @@ preprocess_generators = {
 }
 
 # default values
-DATA_DIR = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
+DATA_DIR = '../data/RADIUS300KM_PROCESSED/'
 LOG_DIR = '../out/m2m_lstm/'
 BATCH_SIZE = 4
 MODEL_NAME = 'm2m_lstm'
@@ -52,6 +52,7 @@ FILENAMES_TRAIN = ['2016', '2015', '2014', '2013', '2012', '2011', '2010', '2009
 FILENAMES_VALID = ['2017']
 T_TRAIN_H = 7 * 24
 T_PRED_D = 3
+MASK_VALUE = 999
 
 
 def train(batch_size=BATCH_SIZE,
@@ -68,8 +69,9 @@ def train(batch_size=BATCH_SIZE,
           std=None,
           file_len=365 * 24,
           position=POSITION,
-          features_train=FEATURES_TRAIN
-          , features_predict=FEATURES_PREDICT):
+          features_train=FEATURES_TRAIN,
+          features_predict=FEATURES_PREDICT,
+          mask_value=MASK_VALUE):
     """
     Script to start a training.
 
@@ -109,7 +111,7 @@ def train(batch_size=BATCH_SIZE,
     """
     model = models[model_name](n_stations=n_stations, batch_size=batch_size, seq_len_pred=t_pred,
                                seq_len_train=t_train_h, n_features=len(features_train),
-                               n_features_pred=len(features_predict))
+                               n_features_pred=len(features_predict), mask_value=mask_value, padding=t_pred_d * 24)
     print('Training training: ', model_name)
     print('Storing files at: ', log_dir)
     print('Reading data from: ', data_dir)
@@ -127,7 +129,9 @@ def train(batch_size=BATCH_SIZE,
                                      t_pred=t_pred_d * 24,
                                      t_train=t_train_h,
                                      features_train=features_train,
-                                     features_pred=features_predict
+                                     features_pred=features_predict,
+                                     padding=t_pred_d * 24,
+                                     pad_value=mask_value
                                      )
 
     valid_generator = generate_batch(data_dir=data_dir,
@@ -137,22 +141,23 @@ def train(batch_size=BATCH_SIZE,
                                      t_pred=t_pred_d * 24,
                                      t_train=t_train_h,
                                      features_train=features_train,
-                                     features_pred=features_predict
-
+                                     features_pred=features_predict,
+                                     padding=t_pred_d * 24,
+                                     pad_value=mask_value,
                                      )
 
     # We estimate mean and stddev from the trainingset to normalize our data
     if mean is None or std is None:
         mean, std = estimate_stats(train_generator, int(n_samples / batch_size),
-                                   features=['air_temperature', 'humidity']
-                                   )
+                                   len(features_train),
+                                   mask_value=mask_value)
 
     # We feed the train generators through normalize generators to normalize each batch before
     # feeding it in the network. This also gets rid of missing values
     train_generator = normalize_generator(train_generator, mean, std, len(features_train), len(features_predict),
-                                          )
+                                          mask_value=mask_value)
     valid_generator = normalize_generator(valid_generator, mean, std, len(features_train), len(features_predict),
-                                          )
+                                          mask_value=mask_value)
 
     # For now we predict only a mean temperature for day and night so we feed the generators
     # through preprocessors
