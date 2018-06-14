@@ -41,7 +41,8 @@ preprocess_generators = {
 }
 
 # default values
-DATA_DIR = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
+# DATA_DIR = '../data/RADIUS500KM_PROCESSED/'
+RADIUS = 100
 LOG_DIR = '../out/m2m_lstm/'
 BATCH_SIZE = 4
 MODEL_NAME = 'm2m_lstm'
@@ -56,8 +57,7 @@ T_PRED_D = 3
 
 def train(batch_size=BATCH_SIZE,
           n_samples=None,
-          log_dir=LOG_DIR,
-          data_dir=DATA_DIR,
+          radius=RADIUS,
           t_train_h=T_TRAIN_H,
           t_pred_d=T_PRED_D,
           t_pred_resolution_h=1,
@@ -84,6 +84,11 @@ def train(batch_size=BATCH_SIZE,
     Run this script from terminal with :
      'python train.py --model_name X --data_dir X --batch_size X --n_samples X --log_dir X/X'
     """
+    
+    data_dir = '../data/RADIUS' + str(radius) + 'KM_PROCESSED/'
+    log_dir = '../out/' + MODEL_NAME + '_' + str(radius) + '_'.join(features_train) +'/'
+    
+    
     t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
 
     if n_samples is None:
