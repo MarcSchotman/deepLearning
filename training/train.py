@@ -86,7 +86,7 @@ def train(batch_size=BATCH_SIZE,
     """
     
     data_dir = '../data/RADIUS' + str(radius) + 'KM_PROCESSED/'
-    log_dir = '../out/' + MODEL_NAME + '_' + str(radius) + '_'.join(features_train) +'/'
+    log_dir = '../out/' + model_name + '_' + str(radius) + '_'.join(features_train) +'/'
     
     
     t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
@@ -149,7 +149,7 @@ def train(batch_size=BATCH_SIZE,
     # We estimate mean and stddev from the trainingset to normalize our data
     if mean is None or std is None:
         mean, std = estimate_stats(train_generator, int(n_samples / batch_size),
-                                   features=['air_temperature', 'humidity']
+                                   features= features_train
                                    )
 
     # We feed the train generators through normalize generators to normalize each batch before

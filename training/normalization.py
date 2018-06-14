@@ -1,6 +1,6 @@
 import numpy as np
 
-_MISSING_VALUE = 999.9
+_MISSING_VALUE = 999
 
 
 def estimate_stats(generator, n_batches, features):
