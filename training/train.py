@@ -171,7 +171,7 @@ def train(batch_size=BATCH_SIZE,
 
     print("Dataset statistics: {} +- {}".format(mean, std))
     print("Number of samples: ", n_samples)
-    save_file([mean[0], std[0], n_samples], name='data_stat.txt', path=log_dir)
+    save_file([mean[0], std[0], n_samples], name='data_stat.csv', path=log_dir)
     
     """
     Configure Training
