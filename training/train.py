@@ -86,7 +86,7 @@ def train(batch_size=BATCH_SIZE,
     """
     
     data_dir = '../data/RADIUS' + str(radius) + 'KM_PROCESSED/'
-    log_dir = '../out/' + model_name + '_' + str(radius) + '_'.join(features_train) +'/'
+    log_dir = '../out/' + model_name + '_'.join(features_train) + '/' + str(radius) + '/'
     
     
     t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
@@ -166,7 +166,8 @@ def train(batch_size=BATCH_SIZE,
 
     print("Dataset statistics: {} +- {}".format(mean, std))
     print("Number of samples: ", n_samples)
-
+    save_file([mean[0], std[0], n_samples], name='data_stat.txt', path=log_dir)
+    
     """
     Configure Training
     """

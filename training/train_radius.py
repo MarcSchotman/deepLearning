@@ -8,7 +8,7 @@ Created on Thu Jun 14 16:30:19 2018
 
 from train import train
 
-radius = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+radius = [100]
 f = ['air_temperature']
 
 for r in radius:
