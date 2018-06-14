@@ -1,5 +1,6 @@
 import numpy as np
 
+_MISSING_VALUE = 999.9
 
 def estimate_stats(generator, n_batches, d, mask_value=999):
     """
