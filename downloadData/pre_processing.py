@@ -61,9 +61,8 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, gene
       
             data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
             data_processed[ID] = replace_missing_values(data_processed[ID],filterKeys, generalMissingValue,missingValueList)
-            data_processed[ID] = update_wind_velocity(data_processed[ID], filterKeys, generalMissingValue,missingValueList)
             
-            
+            data_processed[ID] = update_wind_velocity(data_processed[ID], generalMissingValue, missingValueList)
             
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
