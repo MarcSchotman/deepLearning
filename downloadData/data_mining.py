@@ -105,7 +105,11 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
                 for index in range(0,len(removed_stations)):
                     station_id = removed_stations[index][0] + '-' + removed_stations[index][1]
                     data_year[station_id] = []
-                    data_year[station_id] = prev_data_year[station_id].copy()
+                    data_year[station_id] = prev_data_year[station_id] #.copy()
+                    
+                # clear memory
+                del prev_data_year
+                    
             print('Total stations being saved:',len(data_year))    
             
             #time to save the dict
@@ -118,6 +122,11 @@ def data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter):
             #uses pikcle for dumping dictionary
             with open(full_path_name, 'wb') as handle:
                 pickle.dump(data_year, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    
+            # clear memory
+            del data_year
+    
+    
     print('Download completed')
     return 0
 ##INPUTS

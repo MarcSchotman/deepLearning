@@ -34,12 +34,13 @@ def read_numeric(dataFilePath):
 radius = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 network = 'm2m_lstm'
 feature = ['air_temperature', 'humidity']
-feature = ['air_temperature']
+# feature = ['air_temperature']
+feature = ['air_temperature', 'wind_north', 'wind_east']
 
 # set path
-path = os.path.join('..', 'out2')
+path = os.path.join('..', 'out')
 dataFileID = 'log.csv'
-dataStatFileId = 'data_stat.txt'
+dataStatFileId = 'data_stat.csv'
 
 # init some stuff for looping
 RMS = [0] * len(radius)
@@ -58,19 +59,19 @@ for r in radius:
     dataStat = read_numeric(dataStatPath)
 
     RMS_norm[rCounter] = data[-1, -1]
-    RMS[rCounter] = dataStat[2] * dataStat[2] * data[-1, -1]
+    RMS[rCounter] = dataStat[0][1] * dataStat[0][1] * data[-1, -1]
 
     rCounter = rCounter + 1
 
 # plot results
 fig, ax = plt.subplots( nrows=1, ncols=1 ) 
 ax.plot(radius, RMS)
-plt.ylabel('Mean squared error expressed in stds')
+plt.ylabel('Mean squared error [C^2]')
 plt.xlabel('radius [km]')
 plt.grid(True)
 plt.title(' '.join(feature))
 
 fig.savefig(os.path.join('..', 'fig', 'error_' + '_'.join(feature) + '.png'))
 
-
-plt.close(fig) 
+plt.show(fig) 
+# plt.close(fig) 
