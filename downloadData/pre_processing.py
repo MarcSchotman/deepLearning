@@ -18,7 +18,7 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, gene
     from match_dates import match_dates
     from desired_date_list import desired_date_list
     from replace_missing_values import replace_missing_values
-    
+    from update_wind_velocity import update_wind_velocity
     
     #map location unprocessed data
     deepLearningPath, _  = os.path.split(os.getcwd())
@@ -61,6 +61,10 @@ def pre_processing(startYear, endYear, RADIUS, cut_off_percentage, maxDiff, gene
       
             data_processed[ID]= match_dates(dateList, data_year, currentKeys, ID, maxDiff, missingValueList)
             data_processed[ID] = replace_missing_values(data_processed[ID],filterKeys, generalMissingValue,missingValueList)
+            data_processed[ID] = update_wind_velocity(data_processed[ID], filterKeys, generalMissingValue,missingValueList)
+            
+            
+            
             #have to assign dummy value otherwise deleted key gets printed
         #SAVE DICTIONARIES
         if not os.path.exists(processedFilesLocation):
