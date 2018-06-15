@@ -2,7 +2,8 @@ import argparse
 import pickle
 import random
 import sys
-
+import csv
+    
 sys.path.extend(['../', './'])
 
 # from downloadData.functions.file_utils import create_dirs, save_file
@@ -171,7 +172,11 @@ def train(batch_size=BATCH_SIZE,
 
     print("Dataset statistics: {} +- {}".format(mean, std))
     print("Number of samples: ", n_samples)
-    save_file([mean[0], std[0], n_samples], name='data_stat.csv', path=log_dir)
+    
+
+    with open(log_dir + 'data_stat.csv', 'w') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow([mean[0], std[0], n_samples])
     
     """
     Configure Training

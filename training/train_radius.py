@@ -8,8 +8,8 @@ Created on Thu Jun 14 16:30:19 2018
 
 from train import train
 
-radius = [100]
+radii = [100]
 f = ['air_temperature']
 
-for r in radius:
+for r in radii:
     train(radius = r, features_train = f)
