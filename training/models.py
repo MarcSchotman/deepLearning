@@ -1,6 +1,6 @@
 from keras import Input, Model
 from keras.layers import Dense, LSTM, Conv1D, MaxPooling1D, np, GRU, Dropout, regularizers, Lambda, BatchNormalization, \
-    Activation, Masking
+    Activation, Masking, LeakyReLU
 
 
 def meijer_net(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 24,
@@ -343,6 +343,54 @@ def m2m_lstm_norm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 2
 
     out = Dense(units=n_features_pred, activation="linear")(dense6)
     return Model(input, out)
+
+
+def create_preprocessing(netin, n_stations, activation, depth, width):
+    conn = netin
+    for i in range(1, depth + 1):
+        conn = Dense(units=int(max(n_stations / i * width, 0)))(conn)
+        if activation == 'leaky_relu':
+            conn = LeakyReLU()(conn)
+        else:
+            conn = Activation(activation)(conn)
+    return conn
+
+
+def create_postprocessing(netin, activation, depth, width):
+    conn = netin
+    for i in range(depth):
+        conn = Dense(int(width))(conn)
+        if activation == 'leaky_relu':
+            conn = LeakyReLU()(conn)
+        else:
+            conn = Activation(activation)(conn)
+    return conn
+
+
+def create_memory(netin, memory, depth, width):
+    conn = netin
+    for i in range(depth):
+        conn = LSTM(width, return_sequences=True)(conn) if memory == 'lstm' else GRU(width,
+                                                                                     return_sequences=True)(
+            conn)
+    return conn
+
+
+def create_model(batch_size, t_train, n_features_train, n_stations, width, n_layers_preprocessing, activation,
+                 n_layers_memory,
+                 memory_unit, n_layers_postprocessing, t_pred, mask_value, n_features_pred):
+    netin = Input(batch_shape=(batch_size, t_train + t_pred, n_features_train * n_stations))
+    mask = Masking(mask_value=mask_value)(netin)
+
+    preprocessing = create_preprocessing(mask, n_stations, activation, n_layers_preprocessing, width)
+    memory_unit = create_memory(preprocessing, memory_unit, n_layers_memory, int(n_stations / n_layers_preprocessing))
+    shift = Lambda(lambda x: x[:, -t_pred:, :])(memory_unit)
+    postprocessing = create_postprocessing(shift, activation, n_layers_postprocessing,
+                                           int(n_stations / n_layers_preprocessing))
+    out = Dense(n_features_pred)(postprocessing)
+    model = Model(netin, out)
+
+    return model
 
 
 if __name__ == '__main__':

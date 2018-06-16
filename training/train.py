@@ -3,7 +3,7 @@ import pickle
 import random
 import sys
 import csv
-    
+
 sys.path.extend(['../', './'])
 
 # from downloadData.functions.file_utils import create_dirs, save_file
@@ -43,7 +43,7 @@ preprocess_generators = {
 
 # default values
 # DATA_DIR = '../data/RADIUS500KM_PROCESSED/'
-RADIUS = 100
+RADIUS = 500
 LOG_DIR = '../out/m2m_lstm/'
 BATCH_SIZE = 4
 MODEL_NAME = 'm2m_lstm'
@@ -72,7 +72,8 @@ def train(batch_size=BATCH_SIZE,
           position=POSITION,
           features_train=FEATURES_TRAIN,
           features_predict=FEATURES_PREDICT,
-          mask_value=MASK_VALUE):
+          mask_value=MASK_VALUE,
+          log_dir = None):
     """
     Script to start a training.
 
@@ -87,11 +88,11 @@ def train(batch_size=BATCH_SIZE,
     Run this script from terminal with :
      'python train.py --model_name X --data_dir X --batch_size X --n_samples X --log_dir X/X'
     """
-    
+
     data_dir = '../data/RADIUS' + str(radius) + 'KM_PROCESSED/'
-    log_dir = '../out/' + model_name + '_'.join(features_train) + '/' + str(radius) + '/'
-    
-    
+    if log_dir is None:
+        log_dir = '../out/' + model_name + '_'.join(features_train) + '/' + str(radius) + '/'
+
     t_pred = int(t_pred_d * 24 / t_pred_resolution_h)
 
     if n_samples is None:
@@ -115,9 +116,12 @@ def train(batch_size=BATCH_SIZE,
     """
     Create Model
     """
-    model = models[model_name](n_stations=n_stations, batch_size=batch_size, seq_len_pred=t_pred,
-                               seq_len_train=t_train_h, n_features=len(features_train),
-                               n_features_pred=len(features_predict), mask_value=mask_value, padding=t_pred_d * 24)
+    if isinstance(model_name, str):
+        model = models[model_name](n_stations=n_stations, batch_size=batch_size, seq_len_pred=t_pred,
+                                   seq_len_train=t_train_h, n_features=len(features_train),
+                                   n_features_pred=len(features_predict), mask_value=mask_value, padding=t_pred_d * 24)
+    else:
+        model = model_name
     print('Training training: ', model_name)
     print('Storing files at: ', log_dir)
     print('Reading data from: ', data_dir)
@@ -172,12 +176,11 @@ def train(batch_size=BATCH_SIZE,
 
     print("Dataset statistics: {} +- {}".format(mean, std))
     print("Number of samples: ", n_samples)
-    
 
     with open(log_dir + 'data_stat.csv', 'w') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow([mean[0], std[0], n_samples])
-    
+
     """
     Configure Training
     """
@@ -207,7 +210,7 @@ def train(batch_size=BATCH_SIZE,
     pprint(summary)
 
     save_file(summary, name='summary.txt', path=log_dir)
-    save_file(summary, name='summary.pkl', path=log_dir)
+#    save_file(summary, name='summary.pkl', path=log_dir)
 
     """
     Oppaa!
@@ -229,8 +232,8 @@ if __name__ == '__main__':
     argparser.add_argument('--n_samples', help='Amount of samples to train', default=None)
     args = argparser.parse_args()
     train()
-   # train(batch_size=args.batch_size,
-   #       log_dir=args.log_dir,
-   #       data_dir=args.data_dir,
-   #       model_name=args.model_name,
-   #       n_samples=args.n_samples)
+# train(batch_size=args.batch_size,
+#       log_dir=args.log_dir,
+#       data_dir=args.data_dir,
+#       model_name=args.model_name,
+#       n_samples=args.n_samples)
