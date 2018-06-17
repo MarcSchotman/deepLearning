@@ -17,7 +17,7 @@ from training.preprocess_generators import mean_hour
 from training.utils import find_closest_station
 
 model_file = os.path.join('..', 'out', 'm2m_lstmair_temperature','1000','model.h5')
-model = load_model(model_file)
+model = load_model('../model.h5')
 batch_size = 4
 data_dir = '../data/RADIUS1000KM_PROCESSED/'
 filenames_predict = ['2017']
@@ -46,7 +46,9 @@ generator = generate_batch(data_dir=data_dir,
                            batch_size=batch_size,
                            station_id_pred=station_id_pred,
                            t_pred=t_pred_h,
-                           t_train=t_train_h)
+                           t_train=t_train_h,
+                           padding=72,
+                           features_train=['air_temperature'])
 
 """
 Predict and show
@@ -71,20 +73,20 @@ while True:
         y_min -= 0.3 * y_min
 
         plt.figure()
-        plt.subplot(2, 1, 1)
-        plt.ylim((y_min, y_max))
-        plt.plot(np.arange(0, t_train_h), x_i_station, 'gx--')
-        plt.title("Past Temperature At Target Station - Truth")
-        plt.xlabel('Hour')
-        plt.ylabel('Temperature')
+        # plt.subplot(2, 1, 1)
+        # plt.ylim((y_min, y_max))
+        # plt.plot(np.arange(0, t_train_h), x_i_station, 'gx--')
+        # plt.title("Past Temperature At Target Station - Truth")
+        # plt.xlabel('Hour')
+        # plt.ylabel('Temperature')
         # plt.subplot(3, 1, 2)
         # plt.ylim((y_min, y_max))
         # plt.plot(np.arange(0, t_pred_h), y_true_i, 'gx--')
         # plt.title("Future Temperature - Truth")
         # plt.xlabel('Hour')
         # plt.ylabel('Temperature')
-        plt.subplot(2, 1, 2)
-        plt.ylim((y_min, y_max))
+        # plt.subplot(2, 1, 2)
+        # plt.ylim((y_min, y_max))
         plt.plot(np.arange(0, t_pred), y_pred_i, 'bx--')
         plt.plot(np.arange(0, t_pred), y_true_mean[i_batch], 'gx--')
         plt.xticks(np.arange(0, t_pred), np.arange(0, t_pred_h, t_pred_resolution))

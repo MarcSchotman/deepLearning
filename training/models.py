@@ -360,7 +360,7 @@ def create_preprocessing(netin, n_stations, activation, depth, width, regularize
         if regularizer == 'Dropout50':
             conn = Dropout(0.5)(conn)
         elif regularizer == 'Dropout25':
-            conn = Dropout(0.25)
+            conn = Dropout(0.25)(conn)
 
     return conn
 
@@ -380,7 +380,7 @@ def create_postprocessing(netin, activation, depth, width, regularizer):
         if regularizer == 'Dropout50':
             conn = Dropout(0.5)(conn)
         elif regularizer == 'Dropout25':
-            conn = Dropout(0.25)
+            conn = Dropout(0.25)(conn)
 
     return conn
 
