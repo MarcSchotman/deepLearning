@@ -16,7 +16,7 @@ def load_file(filename: str):
         rows = []
         with open(filename, 'r') as f:
             for row in csv.reader(f):
-                rows.append(row)
+                if len(row) > 0 : rows.append(row)
         return rows
     else:
         with open(filename, 'rb') as f:

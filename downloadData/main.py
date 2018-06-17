@@ -21,10 +21,10 @@ lattitudeCenter = 39.7392 # Denver
 longitudeCenter = -104.9903
 startYear = 2008
 endYear = 2018 #Will NOT download 2018
-r_list = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
+r_list = [1000] #will downlaod for this list of radiuses making seperate dirs in deepLeanrning/data
 
 #DOWNLOAD DATA
-# data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter)
+data_mining(startYear, endYear, r_list, lattitudeCenter, longitudeCenter)
 
 
 #INPUTS
