@@ -1,12 +1,13 @@
 import pickle
 import random
 import sys
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.models import load_model
 
-from training import train
+# from training import train
 
 sys.path.extend(['../','./'])
 
@@ -15,10 +16,10 @@ from training.normalization import normalize
 from training.preprocess_generators import mean_hour
 from training.utils import find_closest_station
 
-model_file = '../out/m2m_gru/model.h5'
+model_file = os.path.join('..', 'out', 'm2m_lstmair_temperature','1000','model.h5')
 model = load_model(model_file)
 batch_size = 4
-data_dir = '../data/RADIUS500KM/data/RADIUS500KM_PROCESSED/'
+data_dir = '../data/RADIUS1000KM_PROCESSED/'
 filenames_predict = ['2017']
 t_train_h = 7 * 24
 t_pred_h = 3 * 24
@@ -26,7 +27,9 @@ t_pred_resolution = 1
 t_pred = int(t_pred_h / t_pred_resolution)
 
 # This was estimated on the training set
-mean, std = 8.371623727535322, 10.89360715785454
+mean, std = [8.371623727535322], [10.89360715785454]
+d = 1
+position = (39.7392, -104.99903)
 
 """
 Find closest station
@@ -50,11 +53,11 @@ Predict and show
 """
 while True:
     x, y = next(generator)
-    y_normalized = normalize(y, mean, std)
+    y_normalized = normalize(y, mean, std, d)
     y_clean = y_normalized * std + mean
     y_true_mean = mean_hour(y_clean, t_pred_resolution)
 
-    x_normalized = normalize(x, mean, std)
+    x_normalized = normalize(x, mean, std, d)
     x_cleaned = x_normalized * std + mean
     y_predicted_normed = model.predict(x_normalized)
     y_predicted = y_predicted_normed * std + mean
