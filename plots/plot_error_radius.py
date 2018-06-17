@@ -8,6 +8,7 @@ Created on Thu Jun 14 21:03:16 2018
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import math as mth
 
 def read_numeric(dataFilePath):
     import csv
@@ -74,11 +75,11 @@ for feature in features:
         
         print( data[-1, -1])
     
-        RMSnorm[featCounter][rCounter] = data[-1, -1]
-        RMS[featCounter][rCounter] = dataStat[0][1] * dataStat[0][1] * data[-1, -1]
+        RMSnorm[featCounter][rCounter] = mth.sqrt(data[-1, 2])
+        RMS[featCounter][rCounter] = mth.sqrt(dataStat[0][1] * dataStat[0][1] * data[-1, 2])
         
-        RMSnormTrain[featCounter][rCounter] = data[-1, 1]
-        RMSTrain[featCounter][rCounter] = dataStat[0][1] * dataStat[0][1] * data[-1, 1]
+        RMSnormTrain[featCounter][rCounter] = mth.sqrt(data[-1, 1])
+        RMSTrain[featCounter][rCounter] = mth.sqrt(dataStat[0][1] * dataStat[0][1] * data[-1, 1])
         
         rCounter = rCounter + 1
         
@@ -92,32 +93,36 @@ trainStyle = '--'
 
 r = [245/255, 159/255,35/2555] # given by Marc
 b = [102/255, 161/255, 211/255] # given by Marc
+lineWidth = 2.5
 
 # plot results   
 fig, ax = plt.subplots( nrows=1, ncols=1, figsize=(10, 6) ) 
-plt.subplots_adjust(top=0.82)
+plt.subplots_adjust(top=0.77)
 
 
-tempPlt, = ax.plot(radiusL, RMS[0], label='temperature, validate',  color=b, linestyle = valStyle)
-windPlt, = ax.plot(radiusL, RMS[1], label='temperature + wind speed, validate',  color=r, linestyle = valStyle)
-humidPlt, = ax.plot(radiusS, RMS[2], label='temperature + humidity, validate',  color='g', linestyle = valStyle)
+tempPlt, = ax.plot(radiusL, RMS[0], label='temperature, validate',  color=b, linestyle = valStyle, linewidth = lineWidth)
+windPlt, = ax.plot(radiusL, RMS[1], label='temperature + wind speed, validate',  color=r, linestyle = valStyle, linewidth = lineWidth)
+humidPlt, = ax.plot(radiusS, RMS[2], label='temperature + humidity, validate',  color='g', linestyle = valStyle, linewidth = lineWidth)
 
-tempPltTrn, = ax.plot(radiusL, RMSTrain[0], label='temperature, train' ,color=b, linestyle = trainStyle)
-windPltTrn, = ax.plot(radiusL, RMSTrain[1], label='temperature + wind speed, train', color=r, linestyle = trainStyle)
-humidPltTrn, = ax.plot(radiusS, RMSTrain[2], label='temperature + humidity, train', color='g', linestyle = trainStyle)
+tempPltTrn, = ax.plot(radiusL, RMSTrain[0], label='temperature, train' ,color=b, linestyle = trainStyle, linewidth = lineWidth)
+windPltTrn, = ax.plot(radiusL, RMSTrain[1], label='temperature + wind speed, train', color=r, linestyle = trainStyle, linewidth = lineWidth)
+humidPltTrn, = ax.plot(radiusS, RMSTrain[2], label='temperature + humidity, train', color='g', linestyle = trainStyle, linewidth = lineWidth)
 
-plt.ylabel('Mean squared error [$^\circ$C$^2$]', fontsize=16, **csfont)
+plt.ylabel('root mean squared error [$^\circ$C]', fontsize=16, **csfont)
 plt.xlabel('radius [km]', fontsize=16, **csfont)
 plt.grid(True)
-plt.title('Error for Different Features and Radii', fontsize=20, **csfont , y=1)
+plt.title('Error for Different Features and Radii', fontsize=20, **csfont , y=1.1)
 
-ax.set_xticklabels(ax.get_xticks(), fontsize=12, **csfont)
-ax.set_yticklabels(ax.get_yticks(), fontsize=12, **csfont)
+ax.set_xticklabels(ax.get_xticks(), fontsize=14, **csfont)
+ax.set_yticklabels(ax.get_yticks(), fontsize=14, **csfont)
 
 handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles=[tempPlt, tempPltTrn, windPlt, windPltTrn, humidPlt, humidPltTrn], 
-           fontsize=16, prop={'family': 'Century Gothic'}, 
-           bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+plt.legend(handles=[tempPlt, windPlt, humidPlt, tempPltTrn, windPltTrn, humidPltTrn], 
+           prop={'family': 'Century Gothic', 'size'   : 13}, 
+           bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+
+plt.xlim(xmin = 100, xmax=1200)
+plt.ylim(ymin = 3, ymax=12)
 
 fig.savefig(os.path.join('..', 'fig', 'error_' + '_'.join(feature) + '.png'))
 fig.savefig(os.path.join('..', 'fig', 'error_' + '_'.join(feature) + '.eps'))
