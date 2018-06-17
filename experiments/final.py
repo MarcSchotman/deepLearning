@@ -3,7 +3,7 @@ from training.train import train, MASK_VALUE
 
 batch_size = 8
 n_stations = 41
-radius = 1000
+radius = 500
 t_train_h = 7 * 24
 t_pred_d = 3
 t_pred_resolution_h = 1

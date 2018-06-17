@@ -18,7 +18,7 @@ Experiment I: Memory Unit
 n_dense_pre = 3
 n_node = 1.0
 act = 'relu'
-n_memory = 1
+n_memory = 2
 n_dense_pos = 3
 memory_units = ['lstm', 'gru']
 reg = None
@@ -61,7 +61,7 @@ Experiment II: Activation Function
 n_dense_pos = 3
 n_node = 1.0
 acts = 'relu', 'leaky_relu', 'tanh'
-n_memory = 1
+n_memory = 2
 n_dense_pre = 3
 memory_unit = 'lstm'
 reg = None
@@ -104,7 +104,7 @@ Experiment III: Regularization
 n_nodes = 1.0
 act = 'relu'
 regs = ['Dropout50', 'Dropout25', 'l1', 'l2']
-n_memory = 1
+n_memory = 2
 n_dense_pre = 3
 n_dense_pos = 3
 memory_unit = 'lstm'
@@ -141,45 +141,3 @@ for reg in regs:
           features_predict=features_predict,
           )
 
-"""
-Experiment III: Depth
-"""
-n_nodes = 1.0
-act = 'relu'
-reg = None
-n_memorys = [1, 2, 4, 8]
-n_dense_pres = [1, 2, 4, 8]
-n_dense_poss = [1, 2, 4, 8]
-memory_unit = 'lstm'
-for i in range(len(n_memorys)):
-    model = create_model(batch_size=batch_size,
-                         t_train=t_train_h,
-                         t_pred=int(t_pred_d * 24 / t_pred_resolution_h),
-                         n_features_train=len(features_train),
-                         n_stations=n_stations,
-                         memory_unit=memory_unit,
-                         width=n_dense_pre,
-                         n_layers_memory=n_memorys[i],
-                         n_layers_preprocessing=n_dense_pres[i],
-                         n_layers_postprocessing=n_dense_poss[i],
-                         n_features_pred=len(features_predict),
-                         activation=act,
-                         mask_value=MASK_VALUE,
-                         regularization=reg)
-
-    # '{layer_pre}x{n_nodes}*{act}->[{memory}]{n_lstm}->{layer_pos}{n_nodes}*{act}'
-    log_dir = 'out/{}-{}-{}-{}{}-{}-{}-{}'.format(n_dense_pre, int(n_node * 10), act, memory_unit, n_memory,
-                                                  n_dense_pos, int(n_stations / n_dense_pre), act)
-
-    train(radius=radius,
-          batch_size=batch_size,
-          log_dir=log_dir,
-          t_train_h=t_train_h,
-          t_pred_d=t_pred_d,
-          t_pred_resolution_h=t_pred_resolution_h,
-          model_name=model,
-          filenames_train=filenames_train,
-          filenames_valid=filenames_valid,
-          features_train=features_train,
-          features_predict=features_predict,
-          )
