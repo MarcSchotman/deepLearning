@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from downloadData.functions.file_utils import load_file
+csfont = {'fontname': 'Century Gothic'}
 
 model_names = ['gru100', 'gru200', 'gru300']
 legend = model_names
@@ -15,9 +16,9 @@ for i, r in enumerate(model_names):
     plt.plot(epoch, valid_loss/train_loss, '-x')
 
 plt.legend(model_names)
-plt.xticks( range(min(xs),max(xs)+1),range(min(xs),max(xs)+1))
-plt.xlabel('Epoch')
-plt.ylabel('Validation Loss/Training Loss')
+plt.xticks( range(min(xs),max(xs)+1),range(min(xs),max(xs)+1),fontsize=16, **csfont)
+plt.xlabel('Epoch',fontsize=16, **csfont)
+plt.ylabel('Validation Loss/Training Loss',fontsize=16, **csfont)
 plt.grid('on')
-plt.title('Evaluation of Model Complexity')
+plt.title('Evaluation of Model Complexity', fontsize=16, **csfont)
 plt.show()
