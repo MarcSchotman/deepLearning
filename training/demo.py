@@ -49,6 +49,7 @@ generator = generate_batch(data_dir=data_dir,
                            t_train=t_train_h,
                            padding=72,
                            features_train=['air_temperature'])
+csfont = {'fontname': 'Century Gothic'}
 
 """
 Predict and show
@@ -89,9 +90,9 @@ while True:
         # plt.ylim((y_min, y_max))
         plt.plot(np.arange(0, t_pred), y_pred_i, 'bx--')
         plt.plot(np.arange(0, t_pred), y_true_mean[i_batch], 'gx--')
-        plt.xticks(np.arange(0, t_pred), np.arange(0, t_pred_h, t_pred_resolution))
-        plt.xlabel('Mean Every {} hour(s)'.format(t_pred_resolution))
-        plt.ylabel('Temperature')
-        plt.legend(['Predicted Temperature', 'True Temperature'])
-        plt.title('Future Temperature - Training Goal')
+        #plt.xticks(np.arange(0, t_pred), np.arange(0, t_pred_h, t_pred_resolution),fontsize=16, **csfont)
+        plt.xlabel('Hour'.format(t_pred_resolution), fontsize=16, **csfont)
+        plt.ylabel('Temperature', fontsize=16, **csfont)
+        plt.legend(['Predicted Temperature', 'True Temperature'],prop={'family': 'Century Gothic', 'size'   : 13}, )
+        plt.title('Future Temperature - Training Goal', fontsize=16, **csfont)
         plt.show()
