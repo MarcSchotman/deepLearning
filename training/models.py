@@ -348,7 +348,7 @@ def m2m_lstm_norm(batch_size=8, n_features=1, n_stations=21, seq_len_train=7 * 2
 def create_preprocessing(netin, n_stations, activation, depth, width, regularizer):
     conn = netin
     for i in range(1, depth + 1):
-        if 'Dropout' is not in regularizer:
+        if 'Dropout' not in regularizer:
             conn = Dense(units=int(max(n_stations / i * width, 0)), kernel_regularizer=regularizer,
                          activity_regularizer=regularizer)(conn)
         else:
@@ -368,7 +368,7 @@ def create_preprocessing(netin, n_stations, activation, depth, width, regularize
 def create_postprocessing(netin, activation, depth, width, regularizer):
     conn = netin
     for i in range(depth):
-        if 'Dropout' is not in regularizer:
+        if 'Dropout' not in regularizer:
             conn = Dense(units=int(width), kernel_regularizer=regularizer,
                          activity_regularizer=regularizer)(conn)
         else:
