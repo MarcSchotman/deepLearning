@@ -1,0 +1,6 @@
+-Check other variables so that we know what we can use to extend..
+-Make check voor oplopende datums
+-What is nice to plot? plot it please
+-Think about missing temperatures (and maybe other variables)
+-make functions seperate files, make function folder...
+-clean the git
